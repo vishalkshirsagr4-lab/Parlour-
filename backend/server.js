@@ -30,6 +30,7 @@ import notificationRoutes from './src/routes/notificationRoutes.js'
 import staffRoutes from './src/routes/staffRoutes.js'
 
 import { createAdmin } from './scripts/createAdmin.js'
+import { verifyEmailTransport } from './src/config/email.js'
 
 /* =========================================
    DNS FIX
@@ -160,6 +161,8 @@ const PORT = process.env.PORT || 5000
 
 const startServer = async () => {
   try {
+    // Verify email transport early to surface env errors (may throw in production)
+    await verifyEmailTransport()
     await connectDB()
     await createAdmin()
 

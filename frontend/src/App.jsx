@@ -8,6 +8,7 @@ import { useAuthStore } from './store/authStore'
 
 // Layouts
 import AdminLayout from './layouts/AdminLayout'
+import UserLayout from './layouts/UserLayout'
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute'
@@ -102,85 +103,24 @@ export default function App() {
             {/* ================= USER ROUTES ================= */}
 
             <Route
-              path="/"
               element={
                 <ProtectedRoute>
-                  <Home />
+                  <UserLayout>
+                    <Outlet />
+                  </UserLayout>
                 </ProtectedRoute>
               }
-            />
-
-            <Route
-              path="/services"
-              element={
-                <ProtectedRoute>
-                  <Services />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/services/:id"
-              element={
-                <ProtectedRoute>
-                  <ServiceDetails />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/gallery"
-              element={
-                <ProtectedRoute>
-                  <Gallery />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/bookings"
-              element={
-                <ProtectedRoute>
-                  <Bookings />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/bookings/:id"
-              element={
-                <ProtectedRoute>
-                  <BookingDetails />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/notifications"
-              element={
-                <ProtectedRoute>
-                  <Notifications />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/chat/:userId"
-              element={
-                <ProtectedRoute>
-                  <Chat />
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route index element={<Home />} />
+              <Route path="services" element={<Services />} />
+              <Route path="services/:id" element={<ServiceDetails />} />
+              <Route path="gallery" element={<Gallery />} />
+              <Route path="bookings" element={<Bookings />} />
+              <Route path="bookings/:id" element={<BookingDetails />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="chat/:userId" element={<Chat />} />
+            </Route>
 
 
             {/* ================= ADMIN ROUTES ================= */}

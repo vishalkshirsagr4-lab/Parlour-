@@ -138,7 +138,6 @@ const buildShareUrl = (user) => {
 export default function SocialShareButton() {
   const { user, isAuthenticated } = useAuthStore()
 
-  const [open, setOpen] = useState(false)
   const [canNativeShare, setCanNativeShare] = useState(false)
   const [mobile, setMobile] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -164,7 +163,6 @@ export default function SocialShareButton() {
 
   const handleShareOpen = async () => {
     incrementMetric(metrics.shareClicks)
-
     if (mobile && canNativeShare) {
       try {
         await navigator.share({
@@ -179,14 +177,21 @@ export default function SocialShareButton() {
         return
       } catch (error) {
         if (error.name !== 'AbortError') {
-          toast.error(
-            'Native share failed, opening fallback menu.'
-          )
+          toast.error('Native share failed')
         }
       }
     }
 
-    setOpen(true)
+    // No modal: fallback to copy link for desktop
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      toast.success('Link copied to clipboard')
+      incrementMetric(metrics.copyClicks)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error('Unable to copy link')
+    }
   }
 
   const handleCopy = async () => {
@@ -224,96 +229,6 @@ export default function SocialShareButton() {
       >
         <FiShare2 className="h-6 w-6" />
       </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 flex items-end justify-center bg-black/50 p-4 sm:items-center"
-          >
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
-              className="w-full max-w-lg rounded-[32px] bg-white p-5 shadow-2xl dark:bg-slate-950"
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold dark:text-white">
-                  Share App
-                </h2>
-
-                <button
-                  onClick={() => setOpen(false)}
-                  className="rounded-xl p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
-                >
-                  <FiX />
-                </button>
-              </div>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {socials.map((platform) => {
-                  const Icon = platform.icon
-
-                  return (
-                    <a
-                      key={platform.name}
-                      href={platform.href(
-                        shareUrl,
-                        SHARE_TEXT
-                      )}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={() =>
-                        handlePlatformShare(platform.name)
-                      }
-                      className={`rounded-3xl border p-4 transition hover:scale-[1.02] ${platform.color}`}
-                    >
-                      <div className="flex flex-col items-center gap-3">
-                        <Icon className="text-2xl" />
-
-                        <span className="text-sm font-semibold">
-                          {platform.name}
-                        </span>
-                      </div>
-                    </a>
-                  )
-                })}
-              </div>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <button
-                  onClick={handleCopy}
-                  className="rounded-3xl border px-4 py-4 font-semibold"
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <FiCopy />
-                    {copied ? 'Copied!' : 'Copy Link'}
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setQrVisible(!qrVisible)}
-                  className="rounded-3xl bg-gradient-to-r from-fuchsia-500 to-rose-500 px-4 py-4 font-semibold text-white"
-                >
-                  {qrVisible ? 'Hide QR' : 'Show QR'}
-                </button>
-              </div>
-
-              {qrVisible && (
-                <div className="mt-6 flex justify-center">
-                  <img
-                    src={qrCodeSrc}
-                    alt="QR Code"
-                    className="h-48 w-48 rounded-3xl border p-3"
-                  />
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   )
 }

@@ -20,7 +20,7 @@ import {
   itemVariants,
 } from '../../animations/variants'
 
-import BottomNav from '../../components/BottomNav'
+// BottomNav is rendered by UserLayout
 
 import toast from 'react-hot-toast'
 
@@ -107,6 +107,29 @@ export default function ServiceDetails() {
     },
   })
 
+  const createReviewMutation = useMutation({
+    mutationFn: async (payload) => {
+      const formData = new FormData()
+      formData.append('serviceId', payload.serviceId)
+      formData.append('customerName', payload.customerName)
+      formData.append('rating', payload.rating)
+      formData.append('comment', payload.comment)
+      if (payload.imageFile) formData.append('image', payload.imageFile)
+
+      const res = await reviewAPI.createReview(formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      return res?.data
+    },
+    onSuccess: () => {
+      toast.success('Review submitted')
+      queryClient.invalidateQueries(['serviceReviews', id])
+    },
+    onError: () => {
+      toast.error('Unable to submit review')
+    },
+  })
+
   const handleBooking = () => {
     if (!service?._id) return toast.error('Service not found')
 
@@ -175,98 +198,126 @@ export default function ServiceDetails() {
         {/* MAIN CARD */}
         <motion.div
           variants={itemVariants}
-          className="rounded-3xl bg-white p-4 shadow-md border border-gray-100"
+          className="rounded-3xl bg-white p-4 shadow-md border border-gray-100 md:grid md:grid-cols-3 md:gap-6"
         >
 
-          {/* IMAGE */}
-          <img
-            src={
-              service?.images?.[0] ||
-              'https://via.placeholder.com/600x400'
-            }
-            alt={service?.title}
-            className="h-64 w-full rounded-2xl object-cover"
-          />
+          <div className="md:col-span-2">
+            {/* IMAGE */}
+            <img
+              src={service?.images?.[0] || 'https://via.placeholder.com/600x400'}
+              alt={service?.title}
+              className="w-full rounded-2xl object-cover h-64 md:h-96"
+            />
 
-          {/* TITLE */}
-          <h1 className="mt-5 text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
-            {service?.title}
-          </h1>
+            {/* TITLE */}
+            <h1 className="mt-5 text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+              {service?.title}
+            </h1>
 
-          {/* DESCRIPTION */}
-          <p className="mt-3 text-sm sm:text-base text-gray-700 leading-relaxed">
-            {service?.description}
-          </p>
+            {/* DESCRIPTION */}
+            <p className="mt-3 text-sm sm:text-base text-gray-700 leading-relaxed">
+              {service?.description}
+            </p>
 
-          {/* PRICE */}
-          <div className="mt-4 text-2xl sm:text-3xl font-bold text-pink-600">
-            ₹{service?.finalPrice || 0}
+            {/* PRICE */}
+            <div className="mt-4 text-2xl sm:text-3xl font-bold text-pink-600">
+              ₹{service?.finalPrice || 0}
+            </div>
+
+            {/* REVIEWS */}
+            <div className="mt-10 rounded-2xl border border-gray-100 bg-white p-5">
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Customer Reviews</h2>
+                  <p className="text-sm text-gray-500">Real feedback from clients</p>
+                </div>
+
+                <RatingsSummary stats={reviewStats} />
+              </div>
+
+              <div className="mt-6">
+                <ReviewForm
+                  serviceId={id}
+                  isSubmitting={createReviewMutation.isLoading}
+                  onSubmit={(data) => createReviewMutation.mutate(data)}
+                />
+              </div>
+
+              <div className="mt-6">
+                <ReviewsList reviews={reviews} isLoading={isReviewsLoading} />
+              </div>
+
+              <div className="mt-6">
+                <FeaturedReviewsCarousel reviews={reviews} />
+              </div>
+            </div>
           </div>
 
-          {/* BOOKING */}
-          <div className="mt-8 rounded-2xl border border-gray-100 p-5 bg-white">
+          {/* BOOKING (RIGHT) */}
+          <div className="mt-6 md:mt-0 md:col-span-1">
+            <div className="sticky top-24 rounded-2xl border border-gray-100 p-5 bg-white">
 
-            <h2 className="text-lg font-semibold text-gray-900">
-              Book Appointment
-            </h2>
+              <h2 className="text-lg font-semibold text-gray-900">Book Appointment</h2>
 
-            <div className="mt-4 space-y-4">
+              <div className="mt-4 space-y-4">
 
-              <input
-                type="date"
-                min={format(new Date(), 'yyyy-MM-dd')}
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
-              />
+                <input
+                  type="date"
+                  min={format(new Date(), 'yyyy-MM-dd')}
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                />
 
-              <select
-                value={selectedSlot}
-                onChange={(e) => setSelectedSlot(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
-              >
-                {slots.map((slot) => (
-                  <option key={slot} value={slot}>
-                    {slot}
-                  </option>
-                ))}
-              </select>
+                <select
+                  value={selectedSlot}
+                  onChange={(e) => setSelectedSlot(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                >
+                  {slots.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {slot}
+                    </option>
+                  ))}
+                </select>
 
-              <select
-                value={selectedStaffId}
-                onChange={(e) => setSelectedStaffId(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
-              >
-                <option value="">Any stylist</option>
-                {staff.map((member) => (
-                  <option key={member._id} value={member._id}>
-                    {member.name}
-                  </option>
-                ))}
-              </select>
+                <select
+                  value={selectedStaffId}
+                  onChange={(e) => setSelectedStaffId(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                >
+                  <option value="">Any stylist</option>
+                  {staff.map((member) => (
+                    <option key={member._id} value={member._id}>
+                      {member.name}
+                    </option>
+                  ))}
+                </select>
 
-              <textarea
-                rows={4}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add notes..."
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
-              />
+                <textarea
+                  rows={4}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add notes..."
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                />
 
-              <button
-                onClick={handleChat}
-                className="w-full rounded-xl border border-pink-500 bg-pink-50 py-3 font-semibold text-pink-600 active:scale-[0.99]"
-              >
-                Chat with stylist
-              </button>
+                <button
+                  onClick={handleChat}
+                  className="w-full rounded-xl border border-pink-500 bg-pink-50 py-3 font-semibold text-pink-600 active:scale-[0.99]"
+                >
+                  Chat with stylist
+                </button>
 
-              <button
-                onClick={handleBooking}
-                className="w-full rounded-xl bg-black py-3 font-semibold text-white active:scale-[0.99]"
-              >
-                Request Appointment
-              </button>
+                <button
+                  onClick={handleBooking}
+                  className="w-full rounded-xl bg-black py-3 font-semibold text-white active:scale-[0.99]"
+                >
+                  Request Appointment
+                </button>
 
+              </div>
             </div>
           </div>
 
@@ -289,12 +340,8 @@ export default function ServiceDetails() {
             <div className="mt-6">
               <ReviewForm
                 serviceId={id}
-                isSubmitting={false}
-                onSubmit={(data) =>
-                  queryClient
-                    .getMutationCache()
-                    .findAll()
-                }
+                isSubmitting={createReviewMutation.isLoading}
+                onSubmit={(data) => createReviewMutation.mutate(data)}
               />
             </div>
 
@@ -313,7 +360,7 @@ export default function ServiceDetails() {
         </motion.div>
       </div>
 
-      <BottomNav />
+      {/* BottomNav is rendered by UserLayout */}
     </motion.div>
   )
 }

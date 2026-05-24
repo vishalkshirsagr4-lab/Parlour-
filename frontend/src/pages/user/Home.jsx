@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { serviceAPI, galleryAPI, staffAPI, reviewAPI } from '../../api/endpoints'
 
-import BottomNav from '../../components/BottomNav'
+// BottomNav is rendered by UserLayout
 import PageBackground from '../../components/luxury/PageBackground'
 import GlassCard from '../../components/luxury/GlassCard'
 import SectionHeading from '../../components/luxury/SectionHeading'
@@ -655,7 +655,7 @@ export default function Home() {
 
         </section>
 
-        <BottomNav />
+        {/* BottomNav rendered by layout */}
 
       </div>
     </PageBackground>

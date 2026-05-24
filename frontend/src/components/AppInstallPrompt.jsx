@@ -249,10 +249,10 @@ export default function AppInstallPrompt() {
     ? 'Install App'
     : isIos
     ? 'Add to Home Screen'
-    : 'Install App'
+    : 'Get App'
 
   const message =
-    'Install our salon app for faster booking experience and open app faster next time.'
+    'Save the app to your home screen for faster bookings, reminders, and offline access.'
 
   return (
     <AnimatePresence>

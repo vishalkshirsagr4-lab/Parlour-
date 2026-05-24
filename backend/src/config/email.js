@@ -1,21 +1,73 @@
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer'
+import fs from 'fs'
+import path from 'path'
 
-const transporter = nodemailer.createTransport({
-  host : "smtp.gmail.com",
-  port : 587 ,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-  tls: {
-    rejectUnauthorized:false,
-  } ,
-});
+let transporter = null
+let useConsoleFallback = false
+
+const createTransporter = () => {
+  const host = process.env.EMAIL_HOST || 'smtp.gmail.com'
+  const port = Number(process.env.EMAIL_PORT || 587)
+  const secure = process.env.EMAIL_SECURE === 'true' || port === 465
+  const user = process.env.EMAIL_USER
+  const pass = process.env.EMAIL_PASSWORD
+
+  if (!user || !pass) {
+    return null
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false },
+  })
+}
+
+export const verifyEmailTransport = async () => {
+  transporter = createTransporter()
+
+  if (!transporter) {
+    const msg = 'EMAIL_USER or EMAIL_PASSWORD not set. Email disabled.'
+    console.error(msg)
+    if (process.env.NODE_ENV === 'production') {
+      // In production, fail fast so env can be configured correctly
+      throw new Error(msg)
+    }
+
+    useConsoleFallback = true
+    return
+  }
+
+  try {
+    await transporter.verify()
+    console.log('✓ Email transporter verified')
+  } catch (err) {
+    console.error('✗ Email transporter verification failed:', err.message || err)
+    if (process.env.NODE_ENV === 'production') {
+      throw err
+    }
+    // dev fallback: use console logging
+    useConsoleFallback = true
+  }
+}
+
+const logEmailToFile = (to, subject, html) => {
+  try {
+    const logsDir = path.join(process.cwd(), 'backend', 'logs')
+    if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true })
+    const logFile = path.join(logsDir, 'emails.log')
+    const entry = `\n---\nTO: ${to}\nSUBJECT: ${subject}\nDATE: ${new Date().toISOString()}\n${html}\n`
+    fs.appendFileSync(logFile, entry)
+  } catch (err) {
+    console.error('Failed to write email log:', err)
+  }
+}
 
 export const sendOTP = async (email, otp) => {
   const mailOptions = {
-    from: process.env.EMAIL_FROM,
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'no-reply@parlour.app',
     to: email,
     subject: 'Parlour - OTP Verification',
     html: `
@@ -27,20 +79,28 @@ export const sendOTP = async (email, otp) => {
         <p>If you didn't request this, please ignore this email.</p>
       </div>
     `,
-  };
+  }
+
+  if (useConsoleFallback || !transporter) {
+    console.log('EMAIL FALLBACK — OTP for', email, otp)
+    logEmailToFile(email, mailOptions.subject, mailOptions.html)
+    return
+  }
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('✓ OTP email sent to:', email);
+    await transporter.sendMail(mailOptions)
+    console.log('✓ OTP email sent to:', email)
   } catch (error) {
-    console.error('✗ Error sending OTP email:', error);
-    throw error;
+    console.error('✗ Error sending OTP email:', error)
+    if (process.env.NODE_ENV === 'production') throw error
+    // dev fallback
+    logEmailToFile(email, mailOptions.subject, mailOptions.html)
   }
-};
+}
 
 export const sendBookingConfirmation = async (email, bookingDetails) => {
   const mailOptions = {
-    from: process.env.EMAIL_FROM,
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'no-reply@parlour.app',
     to: email,
     subject: 'Booking Confirmation - Parlour',
     html: `
@@ -53,13 +113,20 @@ export const sendBookingConfirmation = async (email, bookingDetails) => {
         <p><strong>Status:</strong> ${bookingDetails.status}</p>
       </div>
     `,
-  };
+  }
+
+  if (useConsoleFallback || !transporter) {
+    console.log('EMAIL FALLBACK — Booking to', email)
+    logEmailToFile(email, mailOptions.subject, mailOptions.html)
+    return
+  }
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('✓ Booking confirmation email sent');
+    await transporter.sendMail(mailOptions)
+    console.log('✓ Booking confirmation email sent')
   } catch (error) {
-    console.error('✗ Error sending booking confirmation:', error);
-    throw error;
+    console.error('✗ Error sending booking confirmation:', error)
+    if (process.env.NODE_ENV === 'production') throw error
+    logEmailToFile(email, mailOptions.subject, mailOptions.html)
   }
-};
+}

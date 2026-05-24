@@ -115,8 +115,8 @@ deleteUser: (id) => apiClient.delete(`/users/${id}`),
 export const reviewAPI = {
 
 createReview: (data, config) => apiClient.post('/reviews', data, config),
-
   getRecentReviews: (params) => apiClient.get('/reviews/recent', { params }),
+  getServiceReviews: (serviceId, params) => apiClient.get(`/reviews/service/${serviceId}`, { params }),
 updateReview: (id, data) => apiClient.put(`/reviews/${id}`, data),
 
 deleteReview: (id) => apiClient.delete(`/reviews/${id}`),
