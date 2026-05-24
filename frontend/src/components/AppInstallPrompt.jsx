@@ -316,7 +316,8 @@ export default function AppInstallPrompt() {
           animate="visible"
           exit="exit"
           variants={sheetVariants}
-          className="fixed inset-x-0 bottom-0 z-50 rounded-t-[32px] border border-white/10 bg-slate-950/95 px-5 py-6 shadow-2xl backdrop-blur-xl"
+          className="fixed inset-x-0 bottom-0 z-[120] rounded-t-[32px] border border-white/10 bg-slate-950/95 px-5 py-6 shadow-2xl backdrop-blur-xl"
+          style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}
         >
           <div className="mx-auto flex max-w-3xl flex-col gap-5 text-white">
             <div className="flex items-center justify-between gap-4">

@@ -1,3 +1,5 @@
+@import './safeArea.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,8 +7,11 @@
 @layer base {
   body {
     @apply bg-luxury-light dark:bg-luxury-dark text-gray-900 dark:text-white transition-colors;
+    overflow-x: hidden;
   }
 }
+
+
 
 @layer components {
   .glass-effect {

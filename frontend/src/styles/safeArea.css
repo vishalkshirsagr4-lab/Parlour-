@@ -1,0 +1,31 @@
+:root {
+  --parlour-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --parlour-safe-left: env(safe-area-inset-left, 0px);
+  --parlour-safe-right: env(safe-area-inset-right, 0px);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Prevent mobile address-bar/layout shifts from causing phantom overflow */
+body {
+  overflow-x: hidden;
+}
+
+/* Tailwind app containers should respect bottom fixed UI */
+.parlour-bottom-safe {
+  padding-bottom: calc(6.25rem + var(--parlour-safe-bottom));
+}
+
+/* Reserve space for fixed BottomNav */
+.parlour-bottom-reserve {
+  padding-bottom: calc(4.75rem + var(--parlour-safe-bottom));
+}
+
+/* Utility for fixed buttons that live above BottomNav */
+.parlour-fab-bottom {
+  bottom: calc(4.75rem + var(--parlour-safe-bottom));
+}
+
