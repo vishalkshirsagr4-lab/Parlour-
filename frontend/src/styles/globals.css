@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-luxury-light dark:bg-luxury-dark text-gray-900 dark:text-white transition-colors;
+  }
+}
+
+@layer components {
+  .glass-effect {
+    @apply backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10;
+  }
+
+  .luxury-gradient {
+    @apply bg-gradient-to-br from-rose-pink via-purple-400 to-rose-gold;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-rose-pink text-white rounded-full font-semibold hover:shadow-luxury transition-all duration-300 hover:scale-105;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-full font-semibold hover:shadow-luxury transition-all duration-300;
+  }
+
+  .card-glass {
+    @apply glass-effect rounded-2xl p-6 hover:shadow-luxury transition-all duration-300;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

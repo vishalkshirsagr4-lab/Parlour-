@@ -1,0 +1,25 @@
+{
+  "name": "Parlour Premium Salon",
+  "short_name": "Parlour",
+  "description": "Install the premium salon booking app for faster appointments, reminders, and offline support.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#ff4d96",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/profile-1.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/profile-2.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

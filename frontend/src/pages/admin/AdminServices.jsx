@@ -1,0 +1,581 @@
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
+import { serviceAPI } from '../../api/endpoints'
+import { containerVariants, itemVariants } from '../../animations/variants'
+import toast from 'react-hot-toast'
+
+export default function AdminServices() {
+  const queryClient = useQueryClient()
+
+  const initialForm = {
+    title: '',
+    description: '',
+    category: '',
+    price: '',
+    discount: '',
+    duration: '',
+    ingredients: '',
+    benefits: '',
+  }
+
+  const [form, setForm] = useState(initialForm)
+  const [images, setImages] = useState([])
+  const [imagePreview, setImagePreview] = useState([])
+
+  // =========================
+  // Categories Query
+  // =========================
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+  } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const res = await serviceAPI.getCategories()
+      return Array.isArray(res.data)
+        ? res.data
+        : res.data?.categories || []
+    },
+  })
+
+  // =========================
+  // Services Query
+  // =========================
+  const {
+    data: services = [],
+    isLoading: servicesLoading,
+    isError: servicesError,
+  } = useQuery({
+    queryKey: ['admin-services'],
+    queryFn: async () => {
+      const res = await serviceAPI.getServices({})
+
+      if (Array.isArray(res.data)) {
+        return res.data
+      }
+
+      return res.data?.services || []
+    },
+  })
+
+  // =========================
+  // Create Service
+  // =========================
+  const createServiceMutation = useMutation({
+    mutationFn: async (payload) => {
+      return await serviceAPI.createService(payload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+    },
+
+    onSuccess: () => {
+      toast.success('✨ Service added successfully!')
+
+      queryClient.invalidateQueries({
+        queryKey: ['admin-services'],
+      })
+
+      setForm(initialForm)
+      setImages([])
+      setImagePreview([])
+    },
+
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message ||
+          'Could not save service'
+      )
+    },
+  })
+
+  // =========================
+  // Delete Service
+  // =========================
+  const deleteServiceMutation = useMutation({
+    mutationFn: async (id) => {
+      return await serviceAPI.deleteService(id)
+    },
+
+    onSuccess: () => {
+      toast.success('🗑️ Service deleted')
+
+      queryClient.invalidateQueries({
+        queryKey: ['admin-services'],
+      })
+    },
+
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message ||
+          'Could not delete service'
+      )
+    },
+  })
+
+  // =========================
+  // Handle Image Change
+  // =========================
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files || [])
+
+    setImages(files)
+
+    const previews = files.map((file) =>
+      URL.createObjectURL(file)
+    )
+
+    setImagePreview(previews)
+  }
+
+  // =========================
+  // Handle Submit
+  // =========================
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    if (
+      !form.title ||
+      !form.category ||
+      !form.price ||
+      images.length === 0
+    ) {
+      toast.error(
+        'Please fill all required fields and upload at least one image'
+      )
+      return
+    }
+
+    const payload = new FormData()
+
+    payload.append('title', form.title)
+    payload.append('description', form.description)
+    payload.append('category', form.category)
+    payload.append('price', form.price)
+    payload.append('discount', form.discount || '0')
+    payload.append('duration', form.duration || '30')
+
+    payload.append(
+      'ingredients',
+      JSON.stringify(
+        form.ingredients
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean)
+      )
+    )
+
+    payload.append(
+      'benefits',
+      JSON.stringify(
+        form.benefits
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean)
+      )
+    )
+
+    images.forEach((file) => {
+      payload.append('images', file)
+    })
+
+    createServiceMutation.mutate(payload)
+  }
+
+  return (
+      <motion.div
+        variants={containerVariants}
+        initial="initial"
+        animate="animate"
+        className="space-y-6"
+      >
+        {/* ========================= */}
+        {/* Add Service Form */}
+        {/* ========================= */}
+        <motion.form
+          variants={itemVariants}
+          onSubmit={handleSubmit}
+          className="card-glass rounded-3xl p-6"
+        >
+          <h2 className="mb-6 text-2xl font-bold">
+            ➕ Add New Service
+          </h2>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            {/* Title */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Service Title *
+              </label>
+
+              <input
+                type="text"
+                required
+                value={form.title}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    title: e.target.value,
+                  })
+                }
+                placeholder="e.g., Bridal Makeup"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Category *
+              </label>
+
+              <select
+                required
+                value={form.category}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    category: e.target.value,
+                  })
+                }
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+              >
+                <option value="">
+                  {categoriesLoading
+                    ? 'Loading categories...'
+                    : 'Select category'}
+                </option>
+
+                {categories.map((category) => (
+                  <option
+                    key={category._id}
+                    value={category._id}
+                  >
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Price */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Price (₹) *
+              </label>
+
+              <input
+                type="number"
+                required
+                min="0"
+                step="0.01"
+                value={form.price}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    price: e.target.value,
+                  })
+                }
+                placeholder="0.00"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+              />
+            </div>
+
+            {/* Discount */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Discount %
+              </label>
+
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={form.discount}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    discount: e.target.value,
+                  })
+                }
+                placeholder="0"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+              />
+            </div>
+
+            {/* Duration */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Duration (minutes)
+              </label>
+
+              <input
+                type="number"
+                min="1"
+                value={form.duration}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    duration: e.target.value,
+                  })
+                }
+                placeholder="30"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+              />
+            </div>
+
+            {/* Upload Images */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Upload Images *
+              </label>
+
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                required
+                onChange={handleImageChange}
+                className="w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-rose-pink file:px-4 file:py-2 file:text-white"
+              />
+
+              {images.length > 0 && (
+                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                  {images.length} image(s) selected
+                </p>
+              )}
+            </div>
+
+            {/* Image Preview */}
+            {imagePreview.length > 0 && (
+              <div className="lg:col-span-2">
+                <label className="mb-2 block text-sm font-medium">
+                  Image Preview
+                </label>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {imagePreview.map((preview, idx) => (
+                    <div
+                      key={idx}
+                      className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700"
+                    >
+                      <img
+                        src={preview}
+                        alt={`Preview ${idx + 1}`}
+                        className="h-24 w-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
+            <div className="lg:col-span-2">
+              <label className="mb-2 block text-sm font-medium">
+                Description
+              </label>
+
+              <textarea
+                rows={4}
+                value={form.description}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    description: e.target.value,
+                  })
+                }
+                placeholder="Describe the service..."
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+              />
+            </div>
+
+            {/* Ingredients */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Ingredients
+              </label>
+
+              <input
+                type="text"
+                value={form.ingredients}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    ingredients: e.target.value,
+                  })
+                }
+                placeholder="Aloe Vera, Serum, SPF"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+              />
+            </div>
+
+            {/* Benefits */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Benefits
+              </label>
+
+              <input
+                type="text"
+                value={form.benefits}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    benefits: e.target.value,
+                  })
+                }
+                placeholder="Glowing skin, Hydration"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={createServiceMutation.isPending}
+            className="btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {createServiceMutation.isPending
+              ? 'Uploading...'
+              : '✨ Add Service'}
+          </button>
+        </motion.form>
+
+        {/* ========================= */}
+        {/* Services List */}
+        {/* ========================= */}
+        <div>
+          <h2 className="mb-4 text-2xl font-bold">
+            📋 All Services ({services.length})
+          </h2>
+
+          <div className="grid gap-4">
+            {servicesLoading ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-36 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800"
+                />
+              ))
+            ) : servicesError ? (
+              <div className="rounded-3xl border border-red-300 bg-red-50 p-6 text-red-600 dark:border-red-800 dark:bg-red-950/20 dark:text-red-400">
+                Could not load services
+              </div>
+            ) : services.length > 0 ? (
+              services.map((service) => (
+                <motion.div
+                  key={service._id}
+                  variants={itemVariants}
+                  className="card-glass overflow-hidden rounded-3xl p-5"
+                >
+                  <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                    {/* Left */}
+                    <div className="flex flex-1 gap-4">
+                      {/* Image */}
+                      <div className="h-28 w-28 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800">
+                        <img
+                          src={
+                            service.images?.[0] ||
+                            'https://via.placeholder.com/300x300?text=Service'
+                          }
+                          alt={service.title}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold">
+                          {service.title}
+                        </h3>
+
+                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                          📁{' '}
+                          {service.category?.name ||
+                            'Uncategorized'}
+                        </p>
+
+                        {service.description && (
+                          <p className="mt-2 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                            {service.description}
+                          </p>
+                        )}
+
+                        {/* Ingredients */}
+                        {service.ingredients?.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {service.ingredients
+                              .slice(0, 3)
+                              .map((ing, idx) => (
+                                <span
+                                  key={idx}
+                                  className="rounded-full bg-rose-pink/10 px-3 py-1 text-xs text-rose-pink"
+                                >
+                                  {ing}
+                                </span>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right */}
+                    <div className="flex flex-wrap items-center gap-5">
+                      <div className="text-center">
+                        <p className="text-xs uppercase text-gray-500">
+                          Price
+                        </p>
+
+                        <p className="text-lg font-bold text-rose-pink">
+                          ₹
+                          {service.finalPrice ||
+                            service.price}
+                        </p>
+                      </div>
+
+                      <div className="text-center">
+                        <p className="text-xs uppercase text-gray-500">
+                          Duration
+                        </p>
+
+                        <p className="text-lg font-bold">
+                          {service.duration || 30} min
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              'Delete this service?'
+                            )
+                          ) {
+                            deleteServiceMutation.mutate(
+                              service._id
+                            )
+                          }
+                        }}
+                        className="rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="rounded-3xl border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-400">
+                  No services yet. Create your first service
+                  above! ✨
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+  )
+}
