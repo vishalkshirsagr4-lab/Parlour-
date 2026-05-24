@@ -4,7 +4,10 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { useInView } from 'react-intersection-observer'
 
 import { galleryAPI } from '../../api/endpoints'
-import { containerVariants, itemVariants } from '../../animations/variants'
+import {
+  containerVariants,
+  itemVariants,
+} from '../../animations/variants'
 
 import BottomNav from '../../components/BottomNav'
 import PageBackground from '../../components/luxury/PageBackground'
@@ -19,16 +22,27 @@ export default function Gallery() {
     isError,
   } = useInfiniteQuery({
     queryKey: ['gallery'],
-
     initialPageParam: 1,
 
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await galleryAPI.getGallery({
-        page: pageParam,
-        limit: 12,
-      })
+      try {
+        const res = await galleryAPI.getGallery({
+          page: pageParam,
+          limit: 12,
+        })
 
-      return res?.data || { gallery: [], pagination: {} }
+        return {
+          gallery: res?.data?.gallery || [],
+          pagination: res?.data?.pagination || null,
+        }
+      } catch (error) {
+        console.error('Gallery API error:', error)
+
+        return {
+          gallery: [],
+          pagination: null,
+        }
+      }
     },
 
     getNextPageParam: (lastPage) => {
@@ -39,30 +53,55 @@ export default function Gallery() {
       const currentPage = pagination?.currentPage || 1
       const totalPages = pagination?.pages || 1
 
-      return currentPage < totalPages ? currentPage + 1 : undefined
+      return currentPage < totalPages
+        ? currentPage + 1
+        : undefined
+    },
+
+    initialData: {
+      pages: [],
+      pageParams: [],
     },
   })
 
   const [ref, inView] = useInView()
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
-    }
+    if (!inView) return
+    if (!hasNextPage) return
+    if (isFetchingNextPage) return
+
+    fetchNextPage()
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  // ✅ SAFE FLATTEN (NO CRASH EVER)
+  // ================= SAFE FLATTEN =================
   const galleryItems = useMemo(() => {
-    if (!data?.pages) return []
+    try {
+      if (!data?.pages || !Array.isArray(data.pages)) return []
 
-    return data.pages.flatMap((page) => {
-      if (!page) return []
+      return data.pages.flatMap((page) => {
+        if (!page) return []
 
-      if (Array.isArray(page)) return page
+        if (Array.isArray(page.gallery)) return page.gallery
 
-      return page?.gallery || []
-    })
+        if (Array.isArray(page)) return page
+
+        return []
+      })
+    } catch (error) {
+      console.error('Gallery flatten error:', error)
+      return []
+    }
   }, [data])
+
+  // ================= ERROR STATE =================
+  if (isError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500 font-semibold">
+        Failed to load gallery
+      </div>
+    )
+  }
 
   return (
     <PageBackground>
@@ -70,7 +109,7 @@ export default function Gallery() {
         variants={containerVariants}
         initial="initial"
         animate="animate"
-        className="min-h-screen pb-28 text-black overflow-x-hidden"
+        className="min-h-screen pb-32 text-black overflow-x-hidden bg-gray-50"
       >
         {/* HEADER */}
         <section className="px-4 pt-5">
@@ -80,22 +119,23 @@ export default function Gallery() {
             <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/20 blur-3xl rounded-full" />
 
             <div className="relative z-10">
+
               <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-4 py-2 border border-white/10">
                 <div className="w-2 h-2 rounded-full bg-pink-400" />
-                <span className="text-white text-xs tracking-[0.2em] uppercase">
+                <span className="text-white text-xs uppercase tracking-[0.2em]">
                   Luxury Showcase
                 </span>
               </div>
 
-              <h1 className="mt-5 text-4xl md:text-6xl font-black text-white leading-tight">
+              <h1 className="mt-5 text-3xl sm:text-5xl font-black text-white leading-tight">
                 Gallery
               </h1>
 
-              <p className="mt-4 text-white/70 max-w-2xl text-sm md:text-base leading-relaxed">
-                Explore premium bridal transformations,
-                cinematic makeup looks, luxury hair styling,
-                glowing skin treatments, and salon artistry.
+              <p className="mt-4 text-white/70 text-sm sm:text-base max-w-2xl">
+                Explore premium bridal transformations, makeup looks,
+                hair styling, and salon artistry.
               </p>
+
             </div>
           </div>
         </section>
@@ -104,24 +144,15 @@ export default function Gallery() {
         <section className="px-4 mt-10">
 
           {isLoading ? (
-
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 9 }).map((_, index) => (
+              {Array.from({ length: 9 }).map((_, i) => (
                 <div
-                  key={index}
-                  className="h-[22rem] rounded-[2rem] bg-gray-100 animate-pulse border border-gray-200"
+                  key={i}
+                  className="h-[22rem] rounded-3xl bg-gray-100 animate-pulse border border-gray-200"
                 />
               ))}
             </div>
-
-          ) : isError ? (
-
-            <div className="text-center py-20 text-red-500 font-semibold">
-              Failed to load gallery. Please try again.
-            </div>
-
           ) : galleryItems.length > 0 ? (
-
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
 
               {galleryItems.map((item, idx) => (
@@ -129,8 +160,9 @@ export default function Gallery() {
                   key={item?._id || idx}
                   variants={itemVariants}
                   whileHover={{ y: -6 }}
-                  className="mb-5 break-inside-avoid overflow-hidden rounded-[2rem] bg-white border border-gray-200 shadow-xl"
+                  className="mb-5 break-inside-avoid overflow-hidden rounded-3xl bg-white border border-gray-200 shadow-lg"
                 >
+
                   <div className="relative overflow-hidden">
 
                     <img
@@ -151,7 +183,7 @@ export default function Gallery() {
                         {item?.category?.replace('_', ' ') || 'Luxury Beauty'}
                       </div>
 
-                      <h2 className="mt-3 text-xl font-bold text-white">
+                      <h2 className="mt-3 text-lg font-bold text-white">
                         {item?.title || 'Beauty Transformation'}
                       </h2>
 
@@ -162,20 +194,18 @@ export default function Gallery() {
               ))}
 
             </div>
-
           ) : (
-
             <div className="text-center py-24">
               <h2 className="text-2xl font-bold">No Gallery Images</h2>
               <p className="text-gray-500 mt-2">
                 No content uploaded yet.
               </p>
             </div>
-
           )}
+
         </section>
 
-        {/* LOAD MORE */}
+        {/* LOAD MORE TRIGGER */}
         <div ref={ref} className="mt-10 flex justify-center px-4">
 
           {isFetchingNextPage && (
@@ -196,4 +226,4 @@ export default function Gallery() {
       </motion.div>
     </PageBackground>
   )
-}
+    }
