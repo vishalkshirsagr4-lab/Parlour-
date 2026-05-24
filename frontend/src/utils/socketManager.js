@@ -1,6 +1,6 @@
 import io from 'socket.io-client'
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
+const SOCKET_URL = 'https://parlour-vr34.onrender.com'
 
 let socket = null
 

@@ -7,7 +7,7 @@ import { registerServiceWorker } from './serviceWorkerRegistration'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your_google_client_id'}>
+    <GoogleOAuthProvider clientId={'893091028944-s3r8q3kqfv70gikmol4rdb0cmreqr5u7.apps.googleusercontent.com'}>
       <App />
     </GoogleOAuthProvider>
   </React.StrictMode>,

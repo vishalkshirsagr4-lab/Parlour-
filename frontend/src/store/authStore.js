@@ -7,7 +7,8 @@ export const useAuthStore = create(
       user: null,
       token: null,
       refreshToken: null,
-      isLoading: false,
+
+      isLoading: true,
       isAuthenticated: false,
 
       setAuth: (user, token, refreshToken = null) => {
@@ -26,10 +27,13 @@ export const useAuthStore = create(
           token: null,
           refreshToken: null,
           isAuthenticated: false,
+          isLoading: false,
         })
       },
 
-      setLoading: (isLoading) => set({ isLoading }),
+      setLoading: (loading) => {
+        set({ isLoading: loading })
+      },
     }),
     {
       name: 'auth-store',
