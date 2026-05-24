@@ -104,6 +104,7 @@ export default function BottomNav() {
         >
 
           {navItems
+            .filter((item) => item.path !== '/admin')
             .slice(0, 5)
             .map((item) => {
               const Icon = item.icon

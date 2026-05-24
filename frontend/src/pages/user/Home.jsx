@@ -133,12 +133,12 @@ export default function Home() {
 
   return (
     <PageBackground>
-      <div className="min-h-screen bg-white text-black pb-28 font-sans">
+      <div className="min-h-screen bg-white text-black pb-28 font-sans" style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom))' }}>
 
         {/* HERO */}
         <section className="p-4">
           <GlassCard className="overflow-hidden rounded-[2rem] shadow-2xl border border-white/10">
-            <div className="relative h-[32rem] md:h-[40rem]">
+            <div className="relative h-[34rem] sm:h-[36rem] md:h-[40rem]">
 
               <div
                 className={`absolute inset-0 ${heroSlides[heroIndex].gradient}`}
@@ -154,7 +154,7 @@ export default function Home() {
                 />
               )}
 
-              <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[30rem] h-[30rem] rounded-full bg-white/10 blur-3xl" />
+              <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[18rem] h-[18rem] sm:w-[26rem] sm:h-[26rem] md:w-[30rem] md:h-[30rem] rounded-full bg-white/10 blur-3xl" />
 
               <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-10">
 

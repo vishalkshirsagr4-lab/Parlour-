@@ -7,7 +7,10 @@ import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 import dns from 'dns'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import 'dotenv/config'
+
 
 import { connectDB } from './src/config/database.js'
 import { handleSocketEvents } from './src/sockets/events.js'
@@ -28,9 +31,13 @@ import staffRoutes from './src/routes/staffRoutes.js'
 
 import { createAdmin } from './scripts/createAdmin.js'
 
+import path from 'path'
+import { fileURLToPath } from 'url'
+
 /* =========================================
    GOOGLE DNS
 ========================================= */
+
 
 dns.setServers(['8.8.8.8', '8.8.4.4'])
 
@@ -165,7 +172,34 @@ app.get('/api/health', (req, res) => {
 })
 
 /* =========================================
-   404 HANDLER
+   STATIC + SPA FALLBACK (PRODUCTION)
+   - Serves the built React app from frontend/dist
+   - Fixes deep linking/refresh: /services, /bookings, etc.
+   - Does NOT interfere with /api/* routes
+========================================= */
+
+const isProd = process.env.NODE_ENV === 'production'
+
+
+if (isProd) {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const distPath = path.join(__dirname, '../frontend/dist')
+
+  // Serve static assets (JS/CSS/images) from the Vite build.
+  app.use(express.static(distPath, { maxAge: '1y' }))
+
+  // SPA fallback: for any non-API GET request, serve index.html.
+  // This allows React Router to handle /services, /bookings, etc.
+  app.get('*', (req, res, next) => {
+    if (req.method !== 'GET') return next()
+    if (req.path.startsWith('/api/')) return next()
+
+    return res.sendFile(path.join(distPath, 'index.html'))
+  })
+}
+
+/* =========================================
+   404 HANDLER (API / non-SPA)
 ========================================= */
 
 app.use(notFoundHandler)
@@ -175,6 +209,7 @@ app.use(notFoundHandler)
 ========================================= */
 
 app.use(errorHandler)
+
 
 /* =========================================
    SERVER START
