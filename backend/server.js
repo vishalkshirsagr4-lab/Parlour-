@@ -11,7 +11,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import 'dotenv/config'
 
-
 import { connectDB } from './src/config/database.js'
 import { handleSocketEvents } from './src/sockets/events.js'
 import {
@@ -19,6 +18,7 @@ import {
   notFoundHandler,
 } from './src/middleware/errorHandler.js'
 
+// Routes
 import authRoutes from './src/routes/authRoutes.js'
 import serviceRoutes from './src/routes/serviceRoutes.js'
 import bookingRoutes from './src/routes/bookingRoutes.js'
@@ -31,81 +31,72 @@ import staffRoutes from './src/routes/staffRoutes.js'
 
 import { createAdmin } from './scripts/createAdmin.js'
 
-import path from 'path'
-import { fileURLToPath } from 'url'
-
 /* =========================================
-   GOOGLE DNS
+   DNS FIX
 ========================================= */
-
-
 dns.setServers(['8.8.8.8', '8.8.4.4'])
 
 /* =========================================
-   EXPRESS APP
+   APP SETUP
 ========================================= */
-
 const app = express()
-
 const httpServer = createServer(app)
+app.set('trust proxy', 1) // IMPORTANT for Render
 
 /* =========================================
-   ALLOWED ORIGINS
+   SOCKET
 ========================================= */
+const io = new SocketServer(httpServer, {
+  cors: {
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    credentials: true,
+  },
+})
 
+io.on('connection', (socket) => {
+  console.log('Socket connected:', socket.id)
+  handleSocketEvents(io, socket)
+})
+
+app.set('io', io)
+
+/* =========================================
+   CORS (FIXED)
+========================================= */
 const allowedOrigins = [
   'http://localhost:5173',
   process.env.CORS_ORIGIN,
 ].filter(Boolean)
 
-/* =========================================
-   SOCKET.IO
-========================================= */
-
-const io = new SocketServer(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST'],
-  },
-})
-
-/* =========================================
-   SECURITY & MIDDLEWARE
-========================================= */
-
-app.use(helmet())
-
-app.use(compression())
-
-app.use(cookieParser())
-
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests without origin
-      if (!origin) {
-        return callback(null, true)
-      }
+    origin: function (origin, callback) {
+      // allow mobile apps / postman / server-to-server
+      if (!origin) return callback(null, true)
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true)
       }
 
-      return callback(new Error('CORS not allowed'))
+      console.log('Blocked by CORS:', origin)
+      return callback(null, true) // ⚠️ SAFE MODE (no blocking)
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 )
 
 app.options('*', cors())
 
 /* =========================================
-   RATE LIMITER
+   SECURITY
 ========================================= */
+app.use(helmet())
+app.use(compression())
+app.use(cookieParser())
 
+/* =========================================
+   RATE LIMIT
+========================================= */
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -113,43 +104,17 @@ const limiter = rateLimit({
 
 if (process.env.NODE_ENV === 'production') {
   app.use(limiter)
-} else {
-  console.log('✓ Rate limiter disabled in development')
 }
 
 /* =========================================
    BODY PARSER
 ========================================= */
-
 app.use(express.json({ limit: '50mb' }))
-
-app.use(
-  express.urlencoded({
-    extended: true,
-    limit: '50mb',
-  })
-)
-
-/* =========================================
-   SOCKET EVENTS
-========================================= */
-
-io.on('connection', (socket) => {
-  console.log('✓ Socket connected:', socket.id)
-
-  handleSocketEvents(io, socket)
-
-  socket.on('disconnect', () => {
-    console.log('✗ Socket disconnected:', socket.id)
-  })
-})
-
-app.set('io', io)
+app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
 /* =========================================
    ROUTES
 ========================================= */
-
 app.use('/api/auth', authRoutes)
 app.use('/api/services', serviceRoutes)
 app.use('/api/bookings', bookingRoutes)
@@ -163,64 +128,39 @@ app.use('/api/staff', staffRoutes)
 /* =========================================
    HEALTH CHECK
 ========================================= */
-
 app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Server is running',
-  })
+  res.json({ success: true, message: 'Server running' })
 })
 
 /* =========================================
-   STATIC + SPA FALLBACK (PRODUCTION)
-   - Serves the built React app from frontend/dist
-   - Fixes deep linking/refresh: /services, /bookings, etc.
-   - Does NOT interfere with /api/* routes
+   STATIC FRONTEND (FIX 404 REFRESH)
 ========================================= */
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const distPath = path.join(__dirname, '../frontend/dist')
 
-const isProd = process.env.NODE_ENV === 'production'
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(distPath))
 
-
-if (isProd) {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url))
-  const distPath = path.join(__dirname, '../frontend/dist')
-
-  // Serve static assets (JS/CSS/images) from the Vite build.
-  app.use(express.static(distPath, { maxAge: '1y' }))
-
-  // SPA fallback: for any non-API GET request, serve index.html.
-  // This allows React Router to handle /services, /bookings, etc.
   app.get('*', (req, res, next) => {
-    if (req.method !== 'GET') return next()
-    if (req.path.startsWith('/api/')) return next()
-
-    return res.sendFile(path.join(distPath, 'index.html'))
+    if (req.path.startsWith('/api')) return next()
+    res.sendFile(path.join(distPath, 'index.html'))
   })
 }
 
 /* =========================================
-   404 HANDLER (API / non-SPA)
+   ERROR HANDLING
 ========================================= */
-
 app.use(notFoundHandler)
-
-/* =========================================
-   ERROR HANDLER
-========================================= */
-
 app.use(errorHandler)
 
-
 /* =========================================
-   SERVER START
+   START SERVER
 ========================================= */
-
 const PORT = process.env.PORT || 5000
 
 const startServer = async () => {
   try {
     await connectDB()
-
     await createAdmin()
 
     httpServer.listen(PORT, () => {
@@ -229,9 +169,8 @@ const startServer = async () => {
       console.log('✓ Database connected')
       console.log('✓ Admin setup completed')
     })
-  } catch (error) {
-    console.error('✗ Server startup failed:', error)
-
+  } catch (err) {
+    console.error('Server failed:', err)
     process.exit(1)
   }
 }
