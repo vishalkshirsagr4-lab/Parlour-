@@ -23,7 +23,6 @@ export default function BottomNav() {
     { icon: FiShoppingBag, label: 'Services', path: '/services' },
     { icon: FiImage, label: 'Gallery', path: '/gallery' },
     { icon: FiCalendar, label: 'Bookings', path: '/bookings' },
-    { icon: FiUser, label: 'Profile', path: '/profile' },
   ]
 
   if (isAdmin) {
