@@ -7,19 +7,23 @@ let useConsoleFallback = false
 let fallbackReason = ''
 
 const createTransporter = () => {
+  const host = process.env.EMAIL_HOST
+  const port = Number(process.env.EMAIL_PORT)
+  const secure = process.env.EMAIL_SECURE === 'true'
+
   const user = process.env.EMAIL_USER
   const pass = process.env.EMAIL_PASSWORD
 
-  if (!user || !pass) {
+  if (!host || !port || !user || !pass) {
     fallbackReason =
-      'Missing EMAIL_USER or EMAIL_PASSWORD environment variables.'
+      'Missing email environment variables.'
     return null
   }
 
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    host,
+    port,
+    secure,
 
     auth: {
       user,
@@ -42,7 +46,9 @@ export const verifyEmailTransport = async () => {
 
   try {
     await transporter.verify()
+
     console.log('✓ Email transporter verified')
+    console.log('✓ SMTP Host:', process.env.EMAIL_HOST)
   } catch (err) {
     fallbackReason = err?.message || String(err)
 
@@ -52,7 +58,7 @@ export const verifyEmailTransport = async () => {
     )
 
     console.warn(
-      'Continuing startup with email fallback. Check SMTP environment variables.'
+      'Continuing startup with email fallback.'
     )
 
     useConsoleFallback = true
@@ -201,4 +207,4 @@ export const sendBookingConfirmation = async (
 
     logEmailToFile(email, mailOptions.subject, mailOptions.html)
   }
-}
+      }
