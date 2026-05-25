@@ -32,13 +32,8 @@ export const verifyEmailTransport = async () => {
   transporter = createTransporter()
 
   if (!transporter) {
-    const msg = 'EMAIL_USER or EMAIL_PASSWORD not set. Email disabled.'
-    console.error(msg)
-    if (isProduction) {
-      // In production / Render, fail fast so env can be configured correctly
-      throw new Error(msg)
-    }
-
+    const msg = 'EMAIL_USER or EMAIL_PASSWORD not set. Emails are disabled and will use fallback logging.'
+    console.warn(msg)
     useConsoleFallback = true
     return
   }
@@ -48,10 +43,7 @@ export const verifyEmailTransport = async () => {
     console.log('✓ Email transporter verified')
   } catch (err) {
     console.error('✗ Email transporter verification failed:', err.message || err)
-    if (isProduction) {
-      throw err
-    }
-    // dev fallback: use console logging
+    console.warn('Continuing startup with email fallback. Set valid SMTP env vars to enable email delivery.')
     useConsoleFallback = true
   }
 }
@@ -86,12 +78,7 @@ export const sendOTP = async (email, otp) => {
 
   if (useConsoleFallback || !transporter) {
     const message = `Email transport unavailable for OTP email to ${email}`
-    console.error('OTP email fallback:', message)
-
-    if (isProduction) {
-      throw new Error(message)
-    }
-
+    console.warn('OTP email fallback:', message)
     logEmailToFile(email, mailOptions.subject, mailOptions.html)
     return
   }
@@ -125,7 +112,7 @@ export const sendBookingConfirmation = async (email, bookingDetails) => {
   }
 
   if (useConsoleFallback || !transporter) {
-    console.log('EMAIL FALLBACK — Booking to', email)
+    console.warn('Booking confirmation email fallback for', email)
     logEmailToFile(email, mailOptions.subject, mailOptions.html)
     return
   }
@@ -135,7 +122,7 @@ export const sendBookingConfirmation = async (email, bookingDetails) => {
     console.log('✓ Booking confirmation email sent')
   } catch (error) {
     console.error('✗ Error sending booking confirmation:', error)
-    if (process.env.NODE_ENV === 'production') throw error
+    console.warn('Booking confirmation email fallback enabled. Errors will be logged instead of blocking requests.')
     logEmailToFile(email, mailOptions.subject, mailOptions.html)
   }
 }
