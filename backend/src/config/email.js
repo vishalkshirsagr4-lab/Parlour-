@@ -118,4 +118,4 @@ export const sendBookingConfirmation = async (email, bookingDetails) => {
       JSON.stringify(bookingDetails)
     )
   }
-                }
+}
