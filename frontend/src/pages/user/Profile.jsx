@@ -53,16 +53,7 @@ export default function Profile() {
   // FIXED MUTATION FOR REACT QUERY v5
   const updateMutation = useMutation({
     mutationFn: async (payload) => {
-      return userAPI.updateProfile(
-        payload,
-        payload instanceof FormData
-          ? {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-            }
-          : {}
-      )
+      return userAPI.updateProfile(payload)
     },
 
     onSuccess: async () => {

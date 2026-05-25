@@ -20,9 +20,9 @@ export default function BottomNav() {
 
   const navItems = [
     { icon: FiHome, label: 'Home', path: '/' },
-    { icon: FiShoppingBag, label: 'Services', path: '/services' },
+    { icon: FiShoppingBag, label: 'Service', path: '/services' },
     { icon: FiImage, label: 'Gallery', path: '/gallery' },
-    { icon: FiCalendar, label: 'Bookings', path: '/bookings' },
+    { icon: FiCalendar, label: 'Booking', path: '/bookings' },
   ]
 
   if (isAdmin) {

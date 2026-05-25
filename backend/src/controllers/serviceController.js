@@ -252,14 +252,29 @@ export const deleteService = async (req, res) => {
     }
 
     // Delete images from S3
-    for (const publicId of service.imagePublicIds || []) {
-      await deleteFromS3(publicId);
+    if (service.imagePublicIds?.length > 0) {
+      for (const publicId of service.imagePublicIds) {
+        await deleteFromS3(publicId);
+      }
+    } else {
+      for (const imageUrl of service.images || []) {
+        await deleteFromS3(imageUrl);
+      }
     }
 
     // Delete before/after images if present
     for (const ba of service.beforeAfterImages || []) {
-      if (ba.beforePublicId) await deleteFromS3(ba.beforePublicId);
-      if (ba.afterPublicId) await deleteFromS3(ba.afterPublicId);
+      if (ba.beforePublicId) {
+        await deleteFromS3(ba.beforePublicId);
+      } else if (ba.before) {
+        await deleteFromS3(ba.before);
+      }
+
+      if (ba.afterPublicId) {
+        await deleteFromS3(ba.afterPublicId);
+      } else if (ba.after) {
+        await deleteFromS3(ba.after);
+      }
     }
 
     await Service.findByIdAndDelete(id);

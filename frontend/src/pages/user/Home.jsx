@@ -136,7 +136,7 @@ export default function Home() {
       <div className="min-h-screen bg-white text-black pb-28 font-sans" style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom))' }}>
 
         {/* HERO */}
-        <section className="p-4">
+        <section className="px-4 sm:px-6">
           <GlassCard className="overflow-hidden rounded-[2rem] shadow-2xl border border-white/10">
             <div className="relative h-[34rem] sm:h-[36rem] md:h-[40rem]">
 
@@ -225,7 +225,7 @@ export default function Home() {
         </section>
 
         {/* STAFF */}
-        <section className="px-4 mt-14">
+        <section className="px-4 sm:px-6 mt-14">
 
           <SectionHeading
             eyebrow="Team"
@@ -241,7 +241,7 @@ export default function Home() {
                 className="bg-white border border-gray-200 rounded-[2rem] shadow-lg p-5 hover:shadow-2xl transition"
               >
 
-                <div className="flex gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
 
                   <div className="w-28 h-28 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
                     {m?.image ? (
@@ -259,7 +259,7 @@ export default function Home() {
 
                   <div className="flex-1 min-w-0">
 
-                    <div className="flex justify-between items-start gap-3">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
 
                       <div>
                         <h3 className="text-xl font-black text-gray-900">
@@ -273,7 +273,7 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <div className="text-right text-sm text-gray-500">
+                      <div className="w-full text-left text-sm text-gray-500 sm:w-auto sm:text-right">
                         <div>Exp: {m?.experience || 0} yrs</div>
                         <div>⭐ {m?.rating || 0}</div>
                       </div>
@@ -284,7 +284,7 @@ export default function Home() {
                       {clampString(m?.bio, 120)}
                     </p>
 
-                    <div className="mt-4 flex items-center justify-between gap-3">
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 
                       <div className="text-sm text-gray-500">
                         {Array.isArray(m?.workingDays)
@@ -295,7 +295,7 @@ export default function Home() {
                       {m?.phone && (
                         <a
                           href={`tel:${m.phone}`}
-                          className="bg-black text-white px-4 py-2 rounded-xl font-semibold hover:opacity-90"
+                          className="bg-black text-white px-4 py-2 rounded-xl font-semibold hover:opacity-90 w-full text-center sm:w-auto"
                         >
                           Call
                         </a>
@@ -323,16 +323,16 @@ export default function Home() {
         </section>
 
         {/* SEARCH */}
-        <section className="px-4 mt-6">
+        <section className="px-4 sm:px-6 mt-6">
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
 
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search premium services..."
-              className="flex-1 px-5 py-4 rounded-2xl border border-gray-200 bg-white text-black placeholder:text-gray-400 shadow-md focus:outline-none focus:ring-2 focus:ring-black text-base font-medium"
+              className="flex-1 min-w-0 px-5 py-4 rounded-2xl border border-gray-200 bg-white text-black placeholder:text-gray-400 shadow-md focus:outline-none focus:ring-2 focus:ring-black text-base font-medium"
             />
 
             <button
@@ -341,7 +341,7 @@ export default function Home() {
                   '/services?search=' + encodeURIComponent(query)
                 )
               }
-              className="bg-black text-white px-6 rounded-2xl shadow-lg font-semibold hover:opacity-90 transition"
+              className="bg-black text-white px-6 py-4 rounded-2xl shadow-lg font-semibold hover:opacity-90 transition w-full sm:w-auto"
             >
               Search
             </button>

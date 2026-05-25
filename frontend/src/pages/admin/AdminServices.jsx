@@ -22,6 +22,7 @@ export default function AdminServices() {
   const [form, setForm] = useState(initialForm)
   const [images, setImages] = useState([])
   const [imagePreview, setImagePreview] = useState([])
+  const [editingServiceId, setEditingServiceId] = useState(null)
 
   // =========================
   // Categories Query
@@ -64,11 +65,7 @@ export default function AdminServices() {
   // =========================
   const createServiceMutation = useMutation({
     mutationFn: async (payload) => {
-      return await serviceAPI.createService(payload, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      return await serviceAPI.createService(payload)
     },
 
     onSuccess: () => {
@@ -87,6 +84,32 @@ export default function AdminServices() {
       toast.error(
         error?.response?.data?.message ||
           'Could not save service'
+      )
+    },
+  })
+
+  const updateServiceMutation = useMutation({
+    mutationFn: async ({ id, payload }) => {
+      return await serviceAPI.updateService(id, payload)
+    },
+
+    onSuccess: () => {
+      toast.success('✨ Service updated successfully!')
+
+      queryClient.invalidateQueries({
+        queryKey: ['admin-services'],
+      })
+
+      setForm(initialForm)
+      setImages([])
+      setImagePreview([])
+      setEditingServiceId(null)
+    },
+
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message ||
+          'Could not update service'
       )
     },
   })
@@ -115,6 +138,10 @@ export default function AdminServices() {
     },
   })
 
+  const isSubmitting =
+    createServiceMutation.isPending ||
+    updateServiceMutation.isPending
+
   // =========================
   // Handle Image Change
   // =========================
@@ -130,17 +157,45 @@ export default function AdminServices() {
     setImagePreview(previews)
   }
 
+  const handleEditService = (service) => {
+    setEditingServiceId(service._id)
+    setForm({
+      title: service.title || '',
+      description: service.description || '',
+      category: service.category?._id || service.category || '',
+      price: service.price?.toString() || '',
+      discount: service.discount?.toString() || '0',
+      duration: service.duration?.toString() || '30',
+      ingredients: Array.isArray(service.ingredients)
+        ? service.ingredients.join(', ')
+        : '',
+      benefits: Array.isArray(service.benefits)
+        ? service.benefits.join(', ')
+        : '',
+    })
+    setImages([])
+    setImagePreview([])
+  }
+
+  const handleCancelEdit = () => {
+    setEditingServiceId(null)
+    setForm(initialForm)
+    setImages([])
+    setImagePreview([])
+  }
+
   // =========================
   // Handle Submit
   // =========================
   const handleSubmit = (e) => {
     e.preventDefault()
+    const isEditing = Boolean(editingServiceId)
 
     if (
       !form.title ||
       !form.category ||
       !form.price ||
-      images.length === 0
+      (!isEditing && images.length === 0)
     ) {
       toast.error(
         'Please fill all required fields and upload at least one image'
@@ -181,7 +236,14 @@ export default function AdminServices() {
       payload.append('images', file)
     })
 
-    createServiceMutation.mutate(payload)
+    if (editingServiceId) {
+      updateServiceMutation.mutate({
+        id: editingServiceId,
+        payload,
+      })
+    } else {
+      createServiceMutation.mutate(payload)
+    }
   }
 
   return (
@@ -200,7 +262,7 @@ export default function AdminServices() {
           className="card-glass rounded-3xl p-6"
         >
           <h2 className="mb-6 text-2xl font-bold">
-            ➕ Add New Service
+            {editingServiceId ? '✏️ Edit Service' : '➕ Add New Service'}
           </h2>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -336,7 +398,7 @@ export default function AdminServices() {
                 type="file"
                 accept="image/*"
                 multiple
-                required
+                required={!editingServiceId}
                 onChange={handleImageChange}
                 className="w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-rose-pink file:px-4 file:py-2 file:text-white"
               />
@@ -433,15 +495,35 @@ export default function AdminServices() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={createServiceMutation.isPending}
-            className="btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {createServiceMutation.isPending
-              ? 'Uploading...'
-              : '✨ Add Service'}
-          </button>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button
+              type="submit"
+              disabled={
+                createServiceMutation.isPending ||
+                updateServiceMutation.isPending
+              }
+              className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {createServiceMutation.isPending ||
+              updateServiceMutation.isPending
+                ? editingServiceId
+                  ? 'Updating...'
+                  : 'Uploading...'
+                : editingServiceId
+                ? '✨ Update Service'
+                : '✨ Add Service'}
+            </button>
+
+            {editingServiceId ? (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="btn-secondary w-full sm:w-auto"
+              >
+                Cancel Edit
+              </button>
+            ) : null}
+          </div>
         </motion.form>
 
         {/* ========================= */}
@@ -545,6 +627,13 @@ export default function AdminServices() {
                           {service.duration || 30} min
                         </p>
                       </div>
+
+                      <button
+                        onClick={() => handleEditService(service)}
+                        className="rounded-full border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800/60"
+                      >
+                        ✏️ Edit
+                      </button>
 
                       <button
                         onClick={() => {

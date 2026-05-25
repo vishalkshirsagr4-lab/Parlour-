@@ -78,6 +78,8 @@ export const deleteGalleryImage = async (req, res) => {
 
     if (gallery.imagePublicId) {
       await deleteFromS3(gallery.imagePublicId);
+    } else if (gallery.image) {
+      await deleteFromS3(gallery.image);
     }
 
     await Gallery.findByIdAndDelete(id);

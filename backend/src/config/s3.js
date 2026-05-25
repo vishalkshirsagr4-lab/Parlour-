@@ -57,11 +57,37 @@ export const uploadToS3 = async (filePath, folder = 'uploads') => {
   }
 };
 
-export const deleteFromS3 = async (key) => {
+const extractS3KeyFromUrl = (url, bucket, region) => {
+  if (!url) return null;
+
+  const normalizedBucket = bucket || process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  const normalizedRegion = region || process.env.AWS_REGION;
+  const baseUrl = normalizedBucket && normalizedRegion
+    ? `https://${normalizedBucket}.s3.${normalizedRegion}.amazonaws.com`
+    : null;
+
+  if (baseUrl && url.startsWith(baseUrl)) {
+    return url.replace(`${baseUrl}/`, '');
+  }
+
+  const idx = url.indexOf('amazonaws.com/');
+  if (idx !== -1) {
+    return url.substring(idx + 'amazonaws.com/'.length);
+  }
+
+  const segments = url.split('/').filter(Boolean);
+  return segments.slice(-2).join('/');
+};
+
+export const deleteFromS3 = async (keyOrUrl) => {
   try {
-    if (!key) return;
+    if (!keyOrUrl) return;
     const bucket = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+    const region = process.env.AWS_REGION;
     if (!bucket) throw new Error('Missing env var: AWS_BUCKET_NAME or S3_BUCKET_NAME');
+
+    const key = extractS3KeyFromUrl(keyOrUrl, bucket, region) || keyOrUrl;
+
     const params = {
       Bucket: bucket,
       Key: key,

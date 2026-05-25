@@ -4,6 +4,9 @@ import path from 'path'
 
 let transporter = null
 let useConsoleFallback = false
+const isProduction =
+  process.env.NODE_ENV === 'production' ||
+  Boolean(process.env.RENDER)
 
 const createTransporter = () => {
   const host = process.env.EMAIL_HOST || 'smtp.gmail.com'
@@ -31,8 +34,8 @@ export const verifyEmailTransport = async () => {
   if (!transporter) {
     const msg = 'EMAIL_USER or EMAIL_PASSWORD not set. Email disabled.'
     console.error(msg)
-    if (process.env.NODE_ENV === 'production') {
-      // In production, fail fast so env can be configured correctly
+    if (isProduction) {
+      // In production / Render, fail fast so env can be configured correctly
       throw new Error(msg)
     }
 
@@ -45,7 +48,7 @@ export const verifyEmailTransport = async () => {
     console.log('✓ Email transporter verified')
   } catch (err) {
     console.error('✗ Email transporter verification failed:', err.message || err)
-    if (process.env.NODE_ENV === 'production') {
+    if (isProduction) {
       throw err
     }
     // dev fallback: use console logging
@@ -82,7 +85,13 @@ export const sendOTP = async (email, otp) => {
   }
 
   if (useConsoleFallback || !transporter) {
-    console.log('EMAIL FALLBACK — OTP for', email, otp)
+    const message = `Email transport unavailable for OTP email to ${email}`
+    console.error('OTP email fallback:', message)
+
+    if (isProduction) {
+      throw new Error(message)
+    }
+
     logEmailToFile(email, mailOptions.subject, mailOptions.html)
     return
   }
@@ -92,7 +101,7 @@ export const sendOTP = async (email, otp) => {
     console.log('✓ OTP email sent to:', email)
   } catch (error) {
     console.error('✗ Error sending OTP email:', error)
-    if (process.env.NODE_ENV === 'production') throw error
+    if (isProduction) throw error
     // dev fallback
     logEmailToFile(email, mailOptions.subject, mailOptions.html)
   }

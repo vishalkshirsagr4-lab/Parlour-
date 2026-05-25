@@ -14,7 +14,7 @@ export default function UserTopBar() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/notifications')}
-            className="rounded-lg p-2 hover:bg-gray-100 test-[#333]"
+            className="rounded-lg p-2 hover:bg-gray-100 text-[#333]"
             aria-label="Notifications"
           >
             <FiBell className="w-5 h-5" />
@@ -22,7 +22,7 @@ export default function UserTopBar() {
 
           <button
             onClick={() => navigate('/profile')}
-            className="rounded-lg p-2 hover:bg-gray-100 test-[#333]"
+            className="rounded-lg p-2 hover:bg-gray-100 text-[#333]"
             aria-label="Profile"
           >
             <FiUser className="w-5 h-5" />
