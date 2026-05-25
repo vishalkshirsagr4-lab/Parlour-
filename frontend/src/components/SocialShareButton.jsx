@@ -224,7 +224,7 @@ export default function SocialShareButton() {
       <button
         type="button"
         onClick={handleShareOpen}
-        className="fixed parlour-fab-bottom right-[calc(1rem+env(safe-area-inset-right,0px))] z-[90] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-rose-500 text-white shadow-2xl transition hover:scale-105"
+        className="fixed parlour-fab-bottom right-[calc(1rem+env(safe-area-inset-right,0px))] z-[110] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-rose-500 text-white shadow-2xl transition hover:scale-105"
         aria-label="Share"
       >
         <FiShare2 className="h-6 w-6" />

@@ -26,6 +26,6 @@ body {
 
 /* Utility for fixed buttons that live above BottomNav */
 .parlour-fab-bottom {
-  bottom: calc(4.75rem + var(--parlour-safe-bottom));
+  bottom: calc(5.5rem + var(--parlour-safe-bottom));
 }
 

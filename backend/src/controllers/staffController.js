@@ -94,7 +94,11 @@ export const updateStaff = async (req, res) => {
 
     if (req.file) {
       if (staff.imagePublicId) {
-        await deleteFromS3(staff.imagePublicId);
+        try {
+          await deleteFromS3(staff.imagePublicId);
+        } catch (err) {
+          console.warn('⚠️ Staff image cleanup failed:', err?.message || err);
+        }
       }
       const uploadedImage = await uploadToS3(req.file.path, 'staff');
       staff.image = uploadedImage.url;
@@ -124,7 +128,11 @@ export const deleteStaff = async (req, res) => {
     }
 
     if (staff.imagePublicId) {
-      await deleteFromS3(staff.imagePublicId);
+      try {
+        await deleteFromS3(staff.imagePublicId);
+      } catch (err) {
+        console.warn('⚠️ Staff image cleanup failed:', err?.message || err);
+      }
     }
 
     await Staff.findByIdAndDelete(id);

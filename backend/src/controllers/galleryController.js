@@ -77,9 +77,17 @@ export const deleteGalleryImage = async (req, res) => {
     }
 
     if (gallery.imagePublicId) {
-      await deleteFromS3(gallery.imagePublicId);
+      try {
+        await deleteFromS3(gallery.imagePublicId);
+      } catch (err) {
+        console.warn('⚠️ Gallery image cleanup failed:', err?.message || err);
+      }
     } else if (gallery.image) {
-      await deleteFromS3(gallery.image);
+      try {
+        await deleteFromS3(gallery.image);
+      } catch (err) {
+        console.warn('⚠️ Gallery image cleanup failed:', err?.message || err);
+      }
     }
 
     await Gallery.findByIdAndDelete(id);

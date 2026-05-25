@@ -93,8 +93,26 @@ export const deleteFromS3 = async (keyOrUrl) => {
       Key: key,
     };
     await s3.send(new DeleteObjectCommand(params));
+    return true;
   } catch (error) {
-    console.error('✗ S3 Delete Error:', error);
+    const message = error?.message || error;
+    const code = error?.Code || error?.name || error?.$metadata?.httpStatusCode;
+    console.warn('⚠️ S3 Delete Warning:', {
+      message,
+      code,
+      bucket: process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME,
+      key: extractS3KeyFromUrl(keyOrUrl) || keyOrUrl,
+    });
+
+    if (
+      error?.Code === 'AccessDenied' ||
+      error?.Code === 'AllAccessDisabled' ||
+      error?.Code === 'NoSuchKey' ||
+      error?.name === 'AccessDenied'
+    ) {
+      return false;
+    }
+
     throw error;
   }
 };

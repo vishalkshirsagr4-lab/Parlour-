@@ -56,8 +56,21 @@ export default function Profile() {
       return userAPI.updateProfile(payload)
     },
 
-    onSuccess: async () => {
+    onSuccess: async (response) => {
       toast.success('Profile updated successfully')
+
+      const updatedUser = response?.data?.user || response?.data
+      if (updatedUser) {
+        queryClient.setQueryData(['profile'], updatedUser)
+        setForm({
+          name: updatedUser.name || '',
+          phone: updatedUser.phone || '',
+          bio: updatedUser.bio || '',
+          instagram: updatedUser.socialLinks?.instagram || '',
+        })
+      }
+
+      setImageFile(null)
 
       await queryClient.invalidateQueries({
         queryKey: ['profile'],

@@ -62,7 +62,11 @@ export const updateProfile = async (req, res) => {
     if (req.file) {
       if (user.profileImage) {
         const publicId = extractS3KeyFromUrl(user.profileImage);
-        await deleteFromS3(publicId);
+        try {
+          await deleteFromS3(publicId);
+        } catch (err) {
+          console.warn('⚠️ Profile image cleanup failed:', err?.message || err);
+        }
       }
 
       const uploadedImage = await uploadToS3(req.file.path, 'profiles');
@@ -327,7 +331,11 @@ export const deleteUser = async (req, res) => {
 
     if (user.profileImage) {
       const publicId = extractS3KeyFromUrl(user.profileImage);
-      await deleteFromS3(publicId);
+      try {
+        await deleteFromS3(publicId);
+      } catch (err) {
+        console.warn('⚠️ User profile image cleanup failed:', err?.message || err);
+      }
     }
 
     await User.findByIdAndDelete(userId);

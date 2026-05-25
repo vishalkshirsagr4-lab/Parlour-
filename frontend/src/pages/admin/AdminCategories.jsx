@@ -203,7 +203,7 @@ export default function AdminCategories() {
                   })
                 }
                 placeholder="Bridal Makeup"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink text-[#333]"
               />
             </div>
 
@@ -241,7 +241,7 @@ export default function AdminCategories() {
                   })
                 }
                 placeholder="0"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink text-[#333]"
               />
             </div>
 
@@ -277,7 +277,7 @@ export default function AdminCategories() {
                   })
                 }
                 placeholder="Describe this category..."
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink text-[#333]"
               />
             </div>
           </div>

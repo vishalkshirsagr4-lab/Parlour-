@@ -254,26 +254,50 @@ export const deleteService = async (req, res) => {
     // Delete images from S3
     if (service.imagePublicIds?.length > 0) {
       for (const publicId of service.imagePublicIds) {
-        await deleteFromS3(publicId);
+        try {
+          await deleteFromS3(publicId);
+        } catch (err) {
+          console.warn('⚠️ Service image cleanup failed:', err?.message || err);
+        }
       }
     } else {
       for (const imageUrl of service.images || []) {
-        await deleteFromS3(imageUrl);
+        try {
+          await deleteFromS3(imageUrl);
+        } catch (err) {
+          console.warn('⚠️ Service image cleanup failed:', err?.message || err);
+        }
       }
     }
 
     // Delete before/after images if present
     for (const ba of service.beforeAfterImages || []) {
       if (ba.beforePublicId) {
-        await deleteFromS3(ba.beforePublicId);
+        try {
+          await deleteFromS3(ba.beforePublicId);
+        } catch (err) {
+          console.warn('⚠️ Service before image cleanup failed:', err?.message || err);
+        }
       } else if (ba.before) {
-        await deleteFromS3(ba.before);
+        try {
+          await deleteFromS3(ba.before);
+        } catch (err) {
+          console.warn('⚠️ Service before image cleanup failed:', err?.message || err);
+        }
       }
 
       if (ba.afterPublicId) {
-        await deleteFromS3(ba.afterPublicId);
+        try {
+          await deleteFromS3(ba.afterPublicId);
+        } catch (err) {
+          console.warn('⚠️ Service after image cleanup failed:', err?.message || err);
+        }
       } else if (ba.after) {
-        await deleteFromS3(ba.after);
+        try {
+          await deleteFromS3(ba.after);
+        } catch (err) {
+          console.warn('⚠️ Service after image cleanup failed:', err?.message || err);
+        }
       }
     }
 

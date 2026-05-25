@@ -6,9 +6,9 @@ export default function UserTopBar() {
 
   return (
     <header className="w-full border-b bg-white/60 backdrop-blur sticky top-0 z-40">
-      <div className="mx-auto max-w-6xl flex items-center justify-between px-4 py-3">
+      <div className="mx-auto max-w-6xl flex items-center justify-between px-3 py-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-bold">Parlour</h1>
+          <h1 className="text-lg font-bold text-[#333]">Parlour</h1>
         </div>
 
         <div className="flex items-center gap-3">

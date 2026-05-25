@@ -25,6 +25,7 @@ export default function AdminGallery() {
 
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
+  const [deleteTarget, setDeleteTarget] = useState(null)
 
   // =========================
   // GET GALLERY
@@ -103,6 +104,7 @@ export default function AdminGallery() {
 
     onSuccess: () => {
       toast.success('Image deleted')
+      setDeleteTarget(null)
 
       queryClient.invalidateQueries({
         queryKey: ['admin-gallery'],
@@ -199,7 +201,7 @@ export default function AdminGallery() {
                   })
                 }
                 placeholder="Bridal Makeup Look"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink text-[#333]"
               />
             </div>
 
@@ -217,7 +219,7 @@ export default function AdminGallery() {
                     category: e.target.value,
                   })
                 }
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink text-[#333]"
               >
                 {categories.map((item) => (
                   <option
@@ -246,7 +248,7 @@ export default function AdminGallery() {
                   })
                 }
                 placeholder="Describe this gallery image..."
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink text-[#333]"
               />
             </div>
 
@@ -354,15 +356,10 @@ export default function AdminGallery() {
                     )}
 
                     <button
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            'Delete this gallery image?'
-                          )
-                        ) {
-                          deleteMutation.mutate(item._id)
-                        }
-                      }}
+                      onClick={() => setDeleteTarget({
+                        id: item._id,
+                        title: item.title || 'gallery image',
+                      })}
                       className="mt-4 w-full rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950"
                     >
                       🗑️ Delete
@@ -379,6 +376,38 @@ export default function AdminGallery() {
             )}
           </div>
         </div>
+
+        {deleteTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
+            <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-950 dark:text-white">
+              <h3 className="text-xl font-bold text-black dark:text-white">
+                Delete Gallery Image
+              </h3>
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                Are you sure you want to delete "{deleteTarget.title}"? This action cannot be undone.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(null)}
+                  className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    deleteMutation.mutate(deleteTarget.id)
+                  }}
+                  disabled={deleteMutation.isPending}
+                  className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                >
+                  {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </motion.div>
 
   )

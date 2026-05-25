@@ -243,7 +243,11 @@ export const deleteReview = async (req, res) => {
 
     // Delete images (use stored public keys)
     for (const publicId of review.imagePublicIds || []) {
-      await deleteFromS3(publicId);
+      try {
+        await deleteFromS3(publicId);
+      } catch (err) {
+        console.warn('⚠️ Review image cleanup failed:', err?.message || err);
+      }
     }
 
     await Review.findByIdAndDelete(id);

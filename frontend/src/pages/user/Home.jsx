@@ -323,7 +323,7 @@ export default function Home() {
         </section>
 
         {/* SEARCH */}
-        <section className="px-4 sm:px-6 mt-6">
+        {/* <section className="px-4 sm:px-6 mt-6">
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
 
@@ -348,7 +348,7 @@ export default function Home() {
 
           </div>
 
-        </section>
+        </section> */}
 
         {/* CATEGORIES */}
         <section className="px-4 mt-12">

@@ -37,14 +37,14 @@ export default function AdminLayout({ children, title, description }) {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6">
+      <div className="flex flex-col lg:flex-row gap-4 p-3 lg:p-4">
         {/* Sidebar Navigation */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="lg:w-72 flex-shrink-0"
         >
-          <div className="rounded-3xl border border-white/20 bg-white/90 shadow-sm dark:bg-gray-900 p-4 space-y-2">
+          <div className="rounded-3xl border border-white/20 bg-white/90 shadow-sm dark:bg-gray-900 p-3 space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 px-3 py-2">Admin Menu</p>
             {adminPages.map((page) => (
               <button

@@ -223,35 +223,6 @@ export default function ServiceDetails() {
             <div className="mt-4 text-2xl sm:text-3xl font-bold text-pink-600">
               ₹{service?.finalPrice || 0}
             </div>
-
-            {/* REVIEWS */}
-            <div className="mt-10 rounded-2xl border border-gray-100 bg-white p-5">
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Customer Reviews</h2>
-                  <p className="text-sm text-gray-500">Real feedback from clients</p>
-                </div>
-
-                <RatingsSummary stats={reviewStats} />
-              </div>
-
-              <div className="mt-6">
-                <ReviewForm
-                  serviceId={id}
-                  isSubmitting={createReviewMutation.isLoading}
-                  onSubmit={(data) => createReviewMutation.mutate(data)}
-                />
-              </div>
-
-              <div className="mt-6">
-                <ReviewsList reviews={reviews} isLoading={isReviewsLoading} />
-              </div>
-
-              <div className="mt-6">
-                <FeaturedReviewsCarousel reviews={reviews} />
-              </div>
-            </div>
           </div>
 
           {/* BOOKING (RIGHT) */}
@@ -320,9 +291,13 @@ export default function ServiceDetails() {
               </div>
             </div>
           </div>
+        </motion.div>
 
-          {/* REVIEWS */}
-          <div className="mt-10 rounded-2xl border border-gray-100 bg-white p-5">
+        {/* REVIEWS */}
+        <motion.div
+          variants={itemVariants}
+          className="mt-10 rounded-2xl border border-gray-100 bg-white p-5"
+        >
 
             <div className="flex items-center justify-between">
               <div>
@@ -355,8 +330,6 @@ export default function ServiceDetails() {
             <div className="mt-6">
               <FeaturedReviewsCarousel reviews={reviews} />
             </div>
-          </div>
-
         </motion.div>
       </div>
 
