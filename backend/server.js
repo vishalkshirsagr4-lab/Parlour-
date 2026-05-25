@@ -28,6 +28,7 @@ import reviewRoutes from './src/routes/reviewRoutes.js'
 import messageRoutes from './src/routes/messageRoutes.js'
 import notificationRoutes from './src/routes/notificationRoutes.js'
 import staffRoutes from './src/routes/staffRoutes.js'
+import systemRoutes from './src/routes/systemRoutes.js'
 
 import { createAdmin } from './scripts/createAdmin.js'
 import { verifyEmailTransport } from './src/config/email.js'
@@ -125,6 +126,7 @@ app.use('/api/reviews', reviewRoutes)
 app.use('/api/messages', messageRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/staff', staffRoutes)
+app.use('/api/system', systemRoutes)
 
 /* =========================================
    HEALTH CHECK

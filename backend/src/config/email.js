@@ -15,6 +15,8 @@ const createTransporter = () => {
   const secure = process.env.EMAIL_SECURE === 'true' || port === 465
   const user = process.env.EMAIL_USER
   const pass = process.env.EMAIL_PASSWORD
+  const connTimeout = Number(process.env.EMAIL_CONN_TIMEOUT_MS || 10000)
+  const socketTimeout = Number(process.env.EMAIL_SOCKET_TIMEOUT_MS || 10000)
 
   if (!user || !pass) {
     fallbackReason = 'Missing EMAIL_USER or EMAIL_PASSWORD environment variables.'
@@ -27,6 +29,8 @@ const createTransporter = () => {
     secure,
     auth: { user, pass },
     tls: { rejectUnauthorized: false },
+    connectionTimeout: connTimeout,
+    socketTimeout,
   })
 }
 
@@ -82,6 +86,17 @@ export const sendOTP = async (email, otp) => {
   if (useConsoleFallback || !transporter) {
     const message = `Email transport unavailable for OTP email to ${email}. Reason: ${fallbackReason}`
     console.warn('OTP email fallback:', message)
+    // Try SendGrid HTTP API fallback if configured
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        await trySendViaSendGrid(email, mailOptions.subject, mailOptions.html)
+        console.log('✓ OTP email sent via SendGrid fallback to:', email)
+        return
+      } catch (sgErr) {
+        console.error('✗ SendGrid fallback failed:', sgErr?.message || sgErr)
+      }
+    }
+
     logEmailToFile(email, mailOptions.subject, mailOptions.html)
     return
   }
@@ -90,10 +105,46 @@ export const sendOTP = async (email, otp) => {
     await transporter.sendMail(mailOptions)
     console.log('✓ OTP email sent to:', email)
   } catch (error) {
-    console.error('✗ Error sending OTP email:', error)
-    if (isProduction) throw error
-    // dev fallback
+    console.error('✗ Error sending OTP email:', error?.message || error)
+    // On send failure, attempt SendGrid HTTP fallback if available
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        await trySendViaSendGrid(email, mailOptions.subject, mailOptions.html)
+        console.log('✓ OTP email sent via SendGrid fallback to:', email)
+        return
+      } catch (sgErr) {
+        console.error('✗ SendGrid fallback failed:', sgErr?.message || sgErr)
+      }
+    }
+
+    // Log to file and continue; do not throw — callers expect sendOTP not to crash the request
     logEmailToFile(email, mailOptions.subject, mailOptions.html)
+  }
+}
+
+const trySendViaSendGrid = async (to, subject, html) => {
+  const apiKey = process.env.SENDGRID_API_KEY
+  const from = process.env.SENDGRID_FROM || process.env.EMAIL_FROM || process.env.EMAIL_USER || 'no-reply@parlour.app'
+  if (!apiKey) throw new Error('SENDGRID_API_KEY not configured')
+
+  const body = {
+    personalizations: [{ to: [{ email: to }], subject }],
+    from: { email: from },
+    content: [{ type: 'text/html', value: html }],
+  }
+
+  const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(`SendGrid API error ${res.status}: ${text}`)
   }
 }
 

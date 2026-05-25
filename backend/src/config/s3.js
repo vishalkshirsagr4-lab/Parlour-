@@ -4,6 +4,10 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
 
+// Track S3 delete failures for diagnostics
+const deleteFailures = [];
+const MAX_TRACKED_FAILURES = 100; // Keep last 100 failures
+
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -97,12 +101,27 @@ export const deleteFromS3 = async (keyOrUrl) => {
   } catch (error) {
     const message = error?.message || error;
     const code = error?.Code || error?.name || error?.$metadata?.httpStatusCode;
+    const key = extractS3KeyFromUrl(keyOrUrl) || keyOrUrl;
+
     console.warn('⚠️ S3 Delete Warning:', {
       message,
       code,
       bucket: process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME,
-      key: extractS3KeyFromUrl(keyOrUrl) || keyOrUrl,
+      key,
     });
+
+    // Track failure for admin diagnostics
+    if (code === 'AccessDenied' || error?.name === 'AccessDenied') {
+      deleteFailures.push({
+        timestamp: new Date().toISOString(),
+        key,
+        reason: message,
+        code,
+      });
+      if (deleteFailures.length > MAX_TRACKED_FAILURES) {
+        deleteFailures.shift(); // Remove oldest
+      }
+    }
 
     if (
       error?.Code === 'AccessDenied' ||
@@ -115,6 +134,13 @@ export const deleteFromS3 = async (keyOrUrl) => {
 
     throw error;
   }
+};
+
+export const getS3DeleteFailures = () => deleteFailures;
+export const clearS3DeleteFailures = () => {
+  const count = deleteFailures.length;
+  deleteFailures.length = 0;
+  return count;
 };
 
 export default s3;

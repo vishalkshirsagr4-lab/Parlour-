@@ -23,7 +23,6 @@ import {
 // BottomNav is rendered by UserLayout
 
 import toast from 'react-hot-toast'
-
 import ReviewsList from '../../components/reviews/ReviewsList'
 import ReviewForm from '../../components/reviews/ReviewForm'
 import RatingsSummary from '../../components/reviews/RatingsSummary'

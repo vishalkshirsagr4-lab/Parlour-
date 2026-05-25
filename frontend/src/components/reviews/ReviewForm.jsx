@@ -65,10 +65,10 @@ export default function ReviewForm({
           <p className="text-xs uppercase tracking-[0.25em] text-rose-500">
             Share your experience
           </p>
-          <h2 className="mt-3 text-2xl font-black text-black dark:text-white">
+          <h2 className="mt-3 text-2xl font-black text-black dark:text-royalblue">
             Leave a Review
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray">
             Your feedback helps others choose their perfect luxury service.
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function ReviewForm({
       <form onSubmit={handleSubmit} className="mt-5 space-y-4">
         {/* Name */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+          <label className="mb-2 block text-sm font-medium text-black dark:text-[#333]">
             Customer name
           </label>
           <input
@@ -95,10 +95,10 @@ export default function ReviewForm({
         {/* Rating */}
         <div>
           <div className="flex items-center justify-between gap-4">
-            <label className="block text-sm font-medium text-black dark:text-white">
+            <label className="block text-sm font-medium text-black dark:text-[#333]">
               Star rating
             </label>
-            <div className="text-sm font-semibold text-rose-500">
+            <div className="text-sm font-semibold text-gray">
               {rating ? `${rating} / 5` : ''}
             </div>
           </div>
@@ -113,7 +113,7 @@ export default function ReviewForm({
 
         {/* Avatar */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+          <label className="mb-2 block text-sm font-medium text-black dark:text-[#333]">
             Optional customer image
           </label>
           <input
@@ -150,7 +150,7 @@ export default function ReviewForm({
 
         {/* Comment */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+          <label className="mb-2 block text-sm font-medium text-black dark:text-[#333]">
             Review text
           </label>
           <textarea
