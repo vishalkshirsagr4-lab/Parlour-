@@ -54,7 +54,7 @@ export default function Bookings() {
                     <h2 className="text-xl font-semibold">{booking.service?.title || 'Luxury service'}</h2>
                     <p className="mt-2 text-sm text-gray-600 ">{booking.staff?.name || 'Assigned stylist'} • {format(new Date(booking.date), 'MMM dd, yyyy')}</p>
                   </div>
-                  <span className={`rounded-full px-4 py-2 text-sm font-semibold ${statusStyles[booking.status] || 'bg-gray-100 text-gray-800'}`}>{booking.status.replace('_', ' ')}</span>
+                  <span className={`rounded-full px-4 py-2 text-sm text-center font-semibold ${statusStyles[booking.status] || 'bg-gray-100 text-center text-gray-800'}`}>{booking.status.replace('_', ' ')}</span>
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-500 ">
