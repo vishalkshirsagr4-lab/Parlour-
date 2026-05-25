@@ -1,7 +1,7 @@
 import { memo, useId } from 'react'
 import { motion } from 'framer-motion'
 
-function Star({ filled, onClick, onMouseEnter, label }) {
+function Star({ filled, onClick, onMouseEnter, label, size }) {
   return (
     <motion.button
       type="button"
@@ -10,15 +10,19 @@ function Star({ filled, onClick, onMouseEnter, label }) {
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       aria-label={label}
-      className="relative inline-flex items-center justify-center"
+      className={
+        `relative inline-flex items-center justify-center ${
+          onClick ? 'cursor-pointer' : ''
+        }`
+      }
     >
       <span
         className={
           filled
-            ? 'text-yellow-300 drop-shadow-[0_0_10px_rgba(250,204,21,0.45)]'
-            : 'text-white/40'
+            ? 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.45)]'
+            : 'text-gray-300'
         }
-        style={{ fontSize: 22, lineHeight: 1 }}
+        style={{ fontSize: size, lineHeight: 1 }}
       >
         ★
       </span>
@@ -54,6 +58,7 @@ function StarRating({ value = 0, onChange, size = 'md' }) {
             <Star
               filled={filled}
               label={label}
+              size={starSize}
               onClick={
                 typeof onChange === 'function'
                   ? () => onChange(starValue)
@@ -68,9 +73,6 @@ function StarRating({ value = 0, onChange, size = 'md' }) {
           </div>
         )
       })}
-
-      {/* visual size control */}
-      <style>{`[data-star-size='${normalized}']{ font-size:${starSize}px; }`}</style>
     </div>
   )
 }

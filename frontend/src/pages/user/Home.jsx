@@ -463,7 +463,7 @@ export default function Home() {
                             onClick={() =>
                               navigate(`/services/${s?._id}`)
                             }
-                            className="bg-black text-white px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-xl test-sm sm:test-base font-semibold hover:opacity-90 transition"
+                            className="bg-black text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl test-sm sm:test-base font-semibold hover:opacity-90 transition"
                           >
                             Book Now
                           </button>
