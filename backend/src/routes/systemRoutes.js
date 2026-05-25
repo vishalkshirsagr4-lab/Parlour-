@@ -1,6 +1,5 @@
 import express from 'express';
 import { getS3DeleteFailures, clearS3DeleteFailures } from '../config/s3.js';
-import { verifyEmailTransport } from '../config/email.js';
 
 const router = express.Router();
 
