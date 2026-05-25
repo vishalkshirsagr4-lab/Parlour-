@@ -263,7 +263,7 @@ export default function AppInstallPrompt() {
           animate="visible"
           exit="exit"
           variants={bannerVariants}
-          className="fixed inset-x-4 top-4 z-50 mx-auto max-w-5xl rounded-[32px] border border-white/10 bg-white/90 px-5 py-4 shadow-2xl backdrop-blur-xl dark:bg-slate-950/90"
+          className="fixed inset-x-4 top-4 z-50 mx-auto max-w-5xl rounded-[32px] border border-white/10 bg-white/90 px-5 py-4 shadow-2xl backdrop-blur-xl "
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
@@ -280,11 +280,11 @@ export default function AppInstallPrompt() {
                   Premium App Experience
                 </p>
 
-                <h2 className="mt-1 text-lg font-bold text-slate-950 dark:text-white">
+                <h2 className="mt-1 text-lg font-bold text-slate-950 ">
                   Install our salon app for faster booking
                 </h2>
 
-                <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
+                <p className="mt-1 max-w-2xl text-sm text-slate-600">
                   Open app faster next time and enjoy appointment reminders, offline support and native convenience.
                 </p>
               </div>
@@ -300,7 +300,7 @@ export default function AppInstallPrompt() {
 
               <button
                 onClick={handleDismiss}
-                className="rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                className="rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700"
               >
                 Dismiss
               </button>

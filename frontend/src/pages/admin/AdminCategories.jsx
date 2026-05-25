@@ -299,7 +299,7 @@ export default function AdminCategories() {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="rounded-3xl border border-gray-300 px-6 py-3 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="rounded-3xl border border-gray-300 px-6 py-3 hover:bg-gray-100"
               >
                 Cancel
               </button>
@@ -319,7 +319,7 @@ export default function AdminCategories() {
               Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-28 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800"
+                  className="h-28 animate-pulse rounded-3xl bg-gray-200"
                 />
               ))
             ) : categories.length > 0 ? (
@@ -339,7 +339,7 @@ export default function AdminCategories() {
                         {category.name}
                       </h3>
 
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600">
                         {category.description ||
                           'Premium category'}
                       </p>
@@ -359,7 +359,7 @@ export default function AdminCategories() {
                         deleteMutation.mutate(category._id)
                       }
                       disabled={deleteMutation.isPending}
-                      className="rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950"
+                      className="rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50"
                     >
                       🗑️ Delete
                     </button>
@@ -368,7 +368,7 @@ export default function AdminCategories() {
               ))
             ) : (
               <div className="rounded-3xl border-2 border-dashed border-gray-300 p-8 text-center">
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   No categories yet.
                 </p>
               </div>

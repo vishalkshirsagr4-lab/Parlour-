@@ -5,11 +5,11 @@ export default function EmptyReviewsState({ onSubmitCTA }) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-3xl border border-dashed border-gray-300 bg-white/70 p-10 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900/60"
+      className="rounded-3xl border border-dashed border-gray-300 bg-white/70 p-10 text-center shadow-sm"
     >
       <div className="text-6xl">✨</div>
-      <h2 className="mt-4 text-2xl font-bold text-black dark:text-white">No reviews yet</h2>
-      <p className="mt-2 text-gray-600 dark:text-gray-400">
+      <h2 className="mt-4 text-2xl font-bold text-black">No reviews yet</h2>
+      <p className="mt-2 text-gray-600">
         Be the first to share your luxury experience.
       </p>
       {typeof onSubmitCTA === 'function' && (

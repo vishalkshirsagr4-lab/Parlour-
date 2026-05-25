@@ -93,7 +93,7 @@ export default function BookingDetails() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="rounded-3xl border border-white/20 bg-white/90 p-8 shadow-sm dark:bg-gray-900">
+        <div className="rounded-3xl border border-white/20 bg-white/90 p-8 shadow-sm ">
           <p className="text-lg font-semibold text-rose-pink">
             Loading booking...
           </p>
@@ -108,12 +108,12 @@ export default function BookingDetails() {
   if (isError || !booking?._id) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="rounded-3xl border border-red-300 bg-red-50 p-8 text-center shadow-sm dark:bg-red-950/10 dark:text-red-200">
+        <div className="rounded-3xl border border-red-300 bg-red-50 p-8 text-center shadow-sm">
           <p className="text-lg font-semibold">
             Unable to load booking
           </p>
 
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-gray-600">
             {error?.message || 'Please try again later.'}
           </p>
 
@@ -133,16 +133,16 @@ export default function BookingDetails() {
   // =========================
   const statusStyles = {
     pending:
-      'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+      'bg-yellow-100 text-yellow-700 ',
 
     confirmed:
-      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+      'bg-green-100 text-green-700 ',
 
     completed:
-      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      'bg-blue-100 text-blue-700 ',
 
     cancelled:
-      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+      'bg-red-100 text-red-700 ',
   }
 
   return (
@@ -173,7 +173,7 @@ export default function BookingDetails() {
                 'Booking Details'}
             </h1>
 
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-gray-600 ">
               Review your appointment request and
               timeline.
             </p>
@@ -184,17 +184,17 @@ export default function BookingDetails() {
             {/* LEFT SIDE */}
             <div className="space-y-4">
               {/* SERVICE */}
-              <div className="rounded-3xl border border-gray-200 p-5 dark:border-gray-700">
+              <div className="rounded-3xl border border-gray-200 p-5 ">
                 <h2 className="text-lg font-semibold">
                   Service
                 </h2>
 
-                <p className="mt-3 text-gray-700 dark:text-gray-200">
+                <p className="mt-3 text-gray-700 ">
                   {booking?.service?.title ||
                     'Luxury Salon Service'}
                 </p>
 
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <p className="mt-2 text-sm text-gray-500 ">
                   {booking?.service?.description ||
                     'No description available'}
                 </p>
@@ -207,12 +207,12 @@ export default function BookingDetails() {
               </div>
 
               {/* APPOINTMENT */}
-              <div className="rounded-3xl border border-gray-200 p-5 dark:border-gray-700">
+              <div className="rounded-3xl border border-gray-200 p-5 ">
                 <h2 className="text-lg font-semibold">
                   Appointment
                 </h2>
 
-                <p className="mt-3 text-gray-700 dark:text-gray-200">
+                <p className="mt-3 text-gray-700 ">
                   {booking?.date
                     ? format(
                         new Date(booking.date),
@@ -221,12 +221,12 @@ export default function BookingDetails() {
                     : 'Date unavailable'}
                 </p>
 
-                <p className="mt-1 text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-gray-500 ">
                   {booking?.timeSlot ||
                     'Time not selected'}
                 </p>
 
-                <p className="mt-3 text-gray-700 dark:text-gray-200">
+                <p className="mt-3 text-gray-700 ">
                   Stylist:{' '}
                   {booking?.staff?.name ||
                     'Any available stylist'}
@@ -237,7 +237,7 @@ export default function BookingDetails() {
             {/* RIGHT SIDE */}
             <div className="space-y-4">
               {/* STATUS */}
-              <div className="rounded-3xl border border-gray-200 p-5 dark:border-gray-700">
+              <div className="rounded-3xl border border-gray-200 p-5 ">
                 <h2 className="text-lg font-semibold">
                   Status
                 </h2>
@@ -256,24 +256,24 @@ export default function BookingDetails() {
               </div>
 
               {/* NOTES */}
-              <div className="rounded-3xl border border-gray-200 p-5 dark:border-gray-700">
+              <div className="rounded-3xl border border-gray-200 p-5 ">
                 <h2 className="text-lg font-semibold">
                   Notes
                 </h2>
 
-                <p className="mt-3 text-gray-700 dark:text-gray-200">
+                <p className="mt-3 text-gray-700 ">
                   {booking?.notes ||
                     'No additional notes.'}
                 </p>
               </div>
 
               {/* BOOKING INFO */}
-              <div className="rounded-3xl border border-gray-200 p-5 dark:border-gray-700">
+              <div className="rounded-3xl border border-gray-200 p-5 ">
                 <h2 className="text-lg font-semibold">
                   Booking Info
                 </h2>
 
-                <div className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="mt-3 space-y-2 text-sm text-gray-600 ">
                   <p>
                     Booking ID:{' '}
                     <span className="font-medium">
@@ -302,7 +302,7 @@ export default function BookingDetails() {
                 <button
                   onClick={handleCancel}
                   disabled={cancelMutation.isPending}
-                  className="rounded-full border border-red-500 px-5 py-3 font-medium text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-red-950"
+                  className="rounded-full border border-red-500 px-5 py-3 font-medium text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 "
                 >
                   {cancelMutation.isPending
                     ? 'Cancelling...'
@@ -312,7 +312,7 @@ export default function BookingDetails() {
 
             <button
               onClick={() => navigate('/bookings')}
-              className="rounded-full border border-gray-300 px-5 py-3 font-medium transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
+              className="rounded-full border border-gray-300 px-5 py-3 font-medium transition hover:bg-gray-100 "
             >
               View All Bookings
             </button>

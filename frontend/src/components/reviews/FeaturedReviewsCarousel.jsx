@@ -27,7 +27,7 @@ export default function FeaturedReviewsCarousel({ reviews = [] }) {
             <p className="text-xs uppercase tracking-[0.25em] text-rose-500">
               Featured Reviews
             </p>
-            <h3 className="mt-2 text-2xl font-black text-black dark:text-white">
+            <h3 className="mt-2 text-2xl font-black text-black">
               Client Love
             </h3>
           </div>
@@ -40,7 +40,7 @@ export default function FeaturedReviewsCarousel({ reviews = [] }) {
                 className={`h-2.5 w-2.5 rounded-full transition ${
                   i === idx % featured.length
                     ? 'bg-rose-500'
-                    : 'bg-black/20 dark:bg-white/20'
+                    : 'bg-black/20'
                 }`}
                 aria-label={`Go to featured review ${i + 1}`}
               />
@@ -58,7 +58,7 @@ export default function FeaturedReviewsCarousel({ reviews = [] }) {
               transition={{ duration: 0.35 }}
             >
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800">
+                <div className="h-12 w-12 overflow-hidden rounded-2xl bg-gray-200">
                   {avatar ? (
                     <img
                       src={avatar}
@@ -71,19 +71,19 @@ export default function FeaturedReviewsCarousel({ reviews = [] }) {
                   ) : null}
                 </div>
                 <div>
-                  <p className="font-semibold text-black dark:text-white">
+                  <p className="font-semibold text-black ">
                     {name}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
                     <StarRating value={rating} />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm text-gray-500">
                       {rating ? `${rating}/5` : ''}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <p className="mt-4 text-gray-700 dark:text-gray-300 leading-relaxed">
+              <p className="mt-4 text-gray-700 leading-relaxed">
                 “{text}”
               </p>
             </motion.div>
@@ -94,7 +94,7 @@ export default function FeaturedReviewsCarousel({ reviews = [] }) {
           <button
             type="button"
             onClick={() => setIdx((v) => (v - 1 + featured.length) % featured.length)}
-            className="rounded-2xl border border-black/10 bg-white/70 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white dark:border-white/10 dark:bg-black/20 dark:text-white"
+            className="rounded-2xl border border-black/10 bg-white/70 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white"
             aria-label="Previous featured review"
           >
             ←
@@ -103,7 +103,7 @@ export default function FeaturedReviewsCarousel({ reviews = [] }) {
           <button
             type="button"
             onClick={() => setIdx((v) => (v + 1) % featured.length)}
-            className="rounded-2xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95 dark:bg-white dark:text-black"
+            className="rounded-2xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95 "
             aria-label="Next featured review"
           >
             Next →
@@ -112,7 +112,7 @@ export default function FeaturedReviewsCarousel({ reviews = [] }) {
       </GlassCard>
 
       <div className="mt-4 flex justify-end">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-gray-500 ">
           Premium moments from our clients
         </p>
       </div>

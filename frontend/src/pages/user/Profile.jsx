@@ -127,17 +127,17 @@ export default function Profile() {
 
           <div className="animate-pulse">
 
-            <div className="h-10 w-40 rounded-xl bg-gray-200 dark:bg-gray-800" />
+            <div className="h-10 w-40 rounded-xl bg-gray-200" />
 
-            <div className="mt-8 rounded-3xl bg-gray-200 p-6 dark:bg-gray-800">
+            <div className="mt-8 rounded-3xl bg-gray-200 p-6">
 
-              <div className="mx-auto h-32 w-32 rounded-3xl bg-gray-300 dark:bg-gray-700" />
+              <div className="mx-auto h-32 w-32 rounded-3xl bg-gray-300" />
 
               <div className="mt-6 space-y-4">
 
-                <div className="h-14 rounded-2xl bg-gray-300 dark:bg-gray-700" />
-                <div className="h-14 rounded-2xl bg-gray-300 dark:bg-gray-700" />
-                <div className="h-32 rounded-2xl bg-gray-300 dark:bg-gray-700" />
+                <div className="h-14 rounded-2xl bg-gray-300 " />
+                <div className="h-14 rounded-2xl bg-gray-300 " />
+                <div className="h-32 rounded-2xl bg-gray-300 " />
 
               </div>
 
@@ -157,13 +157,13 @@ export default function Profile() {
       <PageBackground>
         <div className="min-h-screen px-4 pt-5 pb-28">
 
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-6 dark:border-red-900 dark:bg-red-950/30">
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-6">
 
-            <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">
+            <h2 className="text-2xl font-bold text-red-600">
               Failed to load profile
             </h2>
 
-            <p className="mt-2 text-red-500 dark:text-red-300">
+            <p className="mt-2 text-red-500">
               Please refresh the page.
             </p>
 
@@ -188,11 +188,11 @@ export default function Profile() {
           {/* HEADER */}
           <div>
 
-            <h1 className="text-3xl md:text-4xl font-black text-black dark:text-white">
+            <h1 className="text-3xl md:text-4xl font-black text-black">
               My Profile
             </h1>
 
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
+            <p className="mt-2 text-gray-600">
               Manage your salon account and personal information
             </p>
 
@@ -255,7 +255,7 @@ export default function Profile() {
           {/* PROFILE CARD */}
           <motion.div
             variants={itemVariants}
-            className="rounded-3xl bg-white p-6 shadow-xl dark:bg-gray-900"
+            className="rounded-3xl bg-white p-6 shadow-xl"
           >
 
             <div className="grid gap-8 lg:grid-cols-[180px_1fr]">
@@ -263,7 +263,7 @@ export default function Profile() {
               {/* LEFT */}
               <div className="text-center">
 
-                <div className="mx-auto h-40 w-40 overflow-hidden rounded-[2rem] bg-gray-200 shadow-lg dark:bg-gray-800">
+                <div className="mx-auto h-40 w-40 overflow-hidden rounded-[2rem] bg-gray-200 shadow-lg">
 
                   <img
                     src={
@@ -276,11 +276,11 @@ export default function Profile() {
 
                 </div>
 
-                <h2 className="mt-5 text-2xl font-black text-black dark:text-white">
+                <h2 className="mt-5 text-2xl font-black text-black">
                   {profile?.name || 'User'}
                 </h2>
 
-                <p className="mt-1 text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-gray-500 ">
                   {profile?.role || 'Customer'}
                 </p>
 
@@ -295,7 +295,7 @@ export default function Profile() {
                 {/* NAME */}
                 <div>
 
-                  <label className="mb-2 block text-sm font-bold text-black dark:text-white">
+                  <label className="mb-2 block text-sm font-bold text-black ">
                     Full Name
                   </label>
 
@@ -305,7 +305,7 @@ export default function Profile() {
                     value={form.name}
                     onChange={handleChange}
                     placeholder="Enter your name"
-                    className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-black outline-none transition focus:border-black dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-black outline-none transition focus:border-black "
                   />
 
                 </div>
@@ -313,7 +313,7 @@ export default function Profile() {
                 {/* EMAIL */}
                 <div>
 
-                  <label className="mb-2 block text-sm font-bold text-black dark:text-white">
+                  <label className="mb-2 block text-sm font-bold text-black ">
                     Email Address
                   </label>
 
@@ -321,7 +321,7 @@ export default function Profile() {
                     type="email"
                     value={profile?.email || ''}
                     disabled
-                    className="w-full rounded-2xl border border-gray-200 bg-gray-100 px-5 py-4 text-gray-500 outline-none dark:border-gray-700 dark:bg-gray-800"
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-100 px-5 py-4 text-gray-500 outline-none "
                   />
 
                 </div>
@@ -329,7 +329,7 @@ export default function Profile() {
                 {/* PHONE */}
                 <div>
 
-                  <label className="mb-2 block text-sm font-bold text-black dark:text-white">
+                  <label className="mb-2 block text-sm font-bold text-black ">
                     Phone Number
                   </label>
 
@@ -339,7 +339,7 @@ export default function Profile() {
                     value={form.phone}
                     onChange={handleChange}
                     placeholder="Enter phone number"
-                    className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-black outline-none transition focus:border-black dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-black outline-none transition focus:border-black"
                   />
 
                 </div>
@@ -347,7 +347,7 @@ export default function Profile() {
                 {/* BIO */}
                 <div>
 
-                  <label className="mb-2 block text-sm font-bold text-black dark:text-white">
+                  <label className="mb-2 block text-sm font-bold text-black">
                     About You
                   </label>
 
@@ -357,7 +357,7 @@ export default function Profile() {
                     value={form.bio}
                     onChange={handleChange}
                     placeholder="Write something about yourself"
-                    className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-black outline-none transition focus:border-black dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-black outline-none transition focus:border-black"
                   />
 
                 </div>
@@ -365,7 +365,7 @@ export default function Profile() {
                 {/* INSTAGRAM */}
                 <div>
 
-                  <label className="mb-2 block text-sm font-bold text-black dark:text-white">
+                  <label className="mb-2 block text-sm font-bold text-black ">
                     Instagram
                   </label>
 
@@ -375,7 +375,7 @@ export default function Profile() {
                     value={form.instagram}
                     onChange={handleChange}
                     placeholder="@username"
-                    className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-black outline-none transition focus:border-black dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-black outline-none transition focus:border-black "
                   />
 
                 </div>
@@ -383,7 +383,7 @@ export default function Profile() {
                 {/* IMAGE */}
                 <div>
 
-                  <label className="mb-2 block text-sm font-bold text-black dark:text-white">
+                  <label className="mb-2 block text-sm font-bold text-black ">
                     Profile Photo
                   </label>
 
@@ -403,15 +403,15 @@ export default function Profile() {
                         setImagePreview(null)
                       }
                     }}
-                    className="w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-black file:px-5 file:py-3 file:text-white hover:file:opacity-90 dark:file:bg-white dark:file:text-black"
+                    className="w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-black file:px-5 file:py-3 file:text-white hover:file:opacity-90 "
                   />
 
                   {imagePreview && (
                     <div className="mt-3">
-                      <p className="mb-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+                      <p className="mb-2 text-xs font-medium text-gray-600 ">
                         Preview:
                       </p>
-                      <div className="h-32 w-32 overflow-hidden rounded-2xl border-2 border-gray-300 dark:border-gray-700">
+                      <div className="h-32 w-32 overflow-hidden rounded-2xl border-2 border-gray-300 ">
                         <img
                           src={imagePreview}
                           alt="Preview"
@@ -427,7 +427,7 @@ export default function Profile() {
                 <button
                   type="submit"
                   disabled={updateMutation.isPending}
-                  className="w-full rounded-2xl bg-black px-5 py-4 text-lg font-bold text-white transition hover:scale-[1.01] disabled:opacity-50 dark:bg-white dark:text-black"
+                  className="w-full rounded-2xl bg-black px-5 py-4 text-lg font-bold text-white transition hover:scale-[1.01] disabled:opacity-50 "
                 >
                   {updateMutation.isPending
                     ? 'Updating...'
@@ -438,25 +438,25 @@ export default function Profile() {
                 <button
                   type="button"
                   onClick={() => setShowLogoutConfirm(true)}
-                  className="w-full rounded-2xl border border-red-300 bg-red-50 px-5 py-4 text-lg font-bold text-red-600 transition hover:bg-red-100 dark:border-red-800 dark:bg-red-950/20 dark:text-red-400"
+                  className="w-full rounded-2xl border border-red-300 bg-red-50 px-5 py-4 text-lg font-bold text-red-600 transition hover:bg-red-100 "
                 >
                   🚪 Logout
                 </button>
 
                 {showLogoutConfirm && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
-                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-950 dark:text-white">
-                      <h3 className="text-xl font-bold text-black dark:text-white">
+                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl ">
+                      <h3 className="text-xl font-bold text-black ">
                         Confirm Logout
                       </h3>
-                      <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                      <p className="mt-3 text-sm text-gray-600">
                         Are you sure you want to logout? You will need to login again to continue.
                       </p>
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
                         <button
                           type="button"
                           onClick={() => setShowLogoutConfirm(false)}
-                          className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                          className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 "
                         >
                           Cancel
                         </button>

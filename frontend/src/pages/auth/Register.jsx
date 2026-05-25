@@ -54,7 +54,7 @@ export default function Register() {
     >
       <div className="w-full max-w-md glass-effect rounded-3xl p-8">
         <h2 className="text-3xl font-bold text-center mb-2">Create Account</h2>
-        <p className="text-center text-gray-600 dark:text-gray-400 mb-8">Join our premium salon community</p>
+        <p className="text-center text-gray-600 mb-8">Join our premium salon community</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -64,7 +64,7 @@ export default function Register() {
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+              className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-pink"
               placeholder="Your name"
             />
           </div>
@@ -76,7 +76,7 @@ export default function Register() {
               name="email"
               value={form.email}
               onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+              className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300  focus:outline-none focus:ring-2 focus:ring-rose-pink"
               placeholder="you@example.com"
             />
           </div>
@@ -88,7 +88,7 @@ export default function Register() {
               name="password"
               value={form.password}
               onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+              className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300  focus:outline-none focus:ring-2 focus:ring-rose-pink"
               placeholder="••••••••"
             />
           </div>

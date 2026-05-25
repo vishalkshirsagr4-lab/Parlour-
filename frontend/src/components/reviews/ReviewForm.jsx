@@ -65,10 +65,10 @@ export default function ReviewForm({
           <p className="text-xs uppercase tracking-[0.25em] text-rose-500">
             Share your experience
           </p>
-          <h2 className="mt-3 text-2xl font-black text-black dark:text-royalblue">
+          <h2 className="mt-3 text-2xl font-black text-black ">
             Leave a Review
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray">
+          <p className="mt-2 text-sm text-gray-600 ">
             Your feedback helps others choose their perfect luxury service.
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function ReviewForm({
       <form onSubmit={handleSubmit} className="mt-5 space-y-4">
         {/* Name */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-black dark:text-[#333]">
+          <label className="mb-2 block text-sm font-medium text-black">
             Customer name
           </label>
           <input
@@ -85,7 +85,7 @@ export default function ReviewForm({
             onChange={(e) => setCustomerName(e.target.value)}
             onBlur={() => setTouched(true)}
             placeholder="e.g., Anaya"
-            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 dark:border-gray-700 dark:bg-black/20 dark:text-white"
+            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
           />
           {touched && errors.name ? (
             <p className="mt-2 text-sm text-red-500">{errors.name}</p>
@@ -95,7 +95,7 @@ export default function ReviewForm({
         {/* Rating */}
         <div>
           <div className="flex items-center justify-between gap-4">
-            <label className="block text-sm font-medium text-black dark:text-[#333]">
+            <label className="block text-sm font-medium text-black ">
               Star rating
             </label>
             <div className="text-sm font-semibold text-[#333]">
@@ -113,7 +113,7 @@ export default function ReviewForm({
 
         {/* Avatar */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-black dark:text-[#333]">
+          <label className="mb-2 block text-sm font-medium text-black">
             Optional customer image
           </label>
           <input
@@ -123,7 +123,7 @@ export default function ReviewForm({
               const file = e.target.files?.[0] || null
               setImageFile(file)
             }}
-            className="w-full cursor-pointer rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 dark:border-gray-700 dark:bg-black/20 dark:text-white"
+            className="w-full cursor-pointer rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
           />
 
           {imageFile ? (
@@ -139,7 +139,7 @@ export default function ReviewForm({
                 <button
                   type="button"
                   onClick={() => setImageFile(null)}
-                  className="rounded-xl border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+                  className="rounded-xl border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
                 >
                   Remove
                 </button>
@@ -150,7 +150,7 @@ export default function ReviewForm({
 
         {/* Comment */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-black dark:text-[#333]">
+          <label className="mb-2 block text-sm font-medium text-black ">
             Review text
           </label>
           <textarea
@@ -159,13 +159,13 @@ export default function ReviewForm({
             onBlur={() => setTouched(true)}
             rows={5}
             placeholder="Write what you loved..."
-            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 dark:border-gray-700 dark:bg-black/20 dark:text-white"
+            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
           />
           {touched && errors.comment ? (
             <p className="mt-2 text-sm text-red-500">{errors.comment}</p>
           ) : null}
 
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-xs text-gray-500 ">
             Tip: Mention what stood out (service, staff, results).
           </p>
         </div>
@@ -174,12 +174,12 @@ export default function ReviewForm({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="w-full rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-black"
+            className="w-full rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Review'}
           </button>
 
-          <p className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center">
+          <p className="mt-3 text-xs text-gray-500 text-center">
             Reviews are posted after submission confirmation.
           </p>
         </div>

@@ -75,7 +75,7 @@ export default function NotificationBell() {
         whileTap={{ scale: 0.98 }}
         onClick={() => setOpen((v) => !v)}
         aria-label="Notifications"
-        className="relative rounded-2xl bg-white/10 p-2.5 text-white/90 hover:bg-white/20 dark:bg-white/10"
+        className="relative rounded-2xl bg-white/10 p-2.5 text-white/90 hover:bg-white/20"
       >
         <FiBell className="h-5 w-5" />
         {unreadCount > 0 ? (

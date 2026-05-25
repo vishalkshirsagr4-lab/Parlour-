@@ -186,7 +186,7 @@ export default function AdminStaff() {
                 value={form.name}
                 onChange={handleChange}
                 placeholder="e.g., Priya Sharma"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 "
               />
             </div>
 
@@ -203,7 +203,7 @@ export default function AdminStaff() {
                 value={form.email}
                 onChange={handleChange}
                 placeholder="priya@salon.com"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 "
               />
             </div>
 
@@ -220,7 +220,7 @@ export default function AdminStaff() {
                 value={form.phone}
                 onChange={handleChange}
                 placeholder="+91 XXXXX XXXXX"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 "
               />
             </div>
 
@@ -237,7 +237,7 @@ export default function AdminStaff() {
                 value={form.experience}
                 onChange={handleChange}
                 placeholder="5"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 "
               />
             </div>
 
@@ -253,7 +253,7 @@ export default function AdminStaff() {
                 value={form.specialization}
                 onChange={handleChange}
                 placeholder="Bridal Makeup, Hair Styling, Nail Art"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 "
               />
             </div>
 
@@ -269,7 +269,7 @@ export default function AdminStaff() {
                 value={form.bio}
                 onChange={handleChange}
                 placeholder="Tell us about this stylist..."
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-rose-400 "
               />
             </div>
 
@@ -325,7 +325,7 @@ export default function AdminStaff() {
               Array.from({ length: 3 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-64 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800"
+                  className="h-64 animate-pulse rounded-3xl bg-gray-200 "
                 />
               ))
             ) : staff.length > 0 ? (
@@ -351,16 +351,16 @@ export default function AdminStaff() {
                   </h3>
 
                   {member.experience ? (
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-sm text-gray-600 ">
                       ⭐ {member.experience} years experience
                     </p>
                   ) : null}
 
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 text-sm text-gray-500 ">
                     📧 {member.email}
                   </p>
 
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 ">
                     📱 {member.phone}
                   </p>
 
@@ -372,7 +372,7 @@ export default function AdminStaff() {
                           .map((spec, idx) => (
                             <span
                               key={idx}
-                              className="rounded-full bg-rose-100 px-3 py-1 text-xs text-rose-600 dark:bg-rose-900/30"
+                              className="rounded-full bg-rose-100 px-3 py-1 text-xs text-rose-600 "
                             >
                               {spec}
                             </span>
@@ -387,7 +387,7 @@ export default function AdminStaff() {
                     )}
 
                   {member.bio && (
-                    <p className="mt-3 line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
+                    <p className="mt-3 line-clamp-2 text-xs text-gray-600 ">
                       {member.bio}
                     </p>
                   )}
@@ -397,7 +397,7 @@ export default function AdminStaff() {
                       deleteMutation.mutate(member._id)
                     }
                     disabled={deleteMutation.isPending}
-                    className="mt-4 w-full rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950"
+                    className="mt-4 w-full rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 "
                   >
                     🗑️ Remove
                   </button>
@@ -405,7 +405,7 @@ export default function AdminStaff() {
               ))
             ) : (
               <div className="lg:col-span-3 rounded-3xl border-2 border-dashed border-gray-300 p-12 text-center">
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600 ">
                   No stylists added yet. Add your first stylist above! 👑
                 </p>
               </div>

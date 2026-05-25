@@ -314,7 +314,7 @@ export default function AdminGallery() {
               Array.from({ length: 6 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-72 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800"
+                  className="h-72 animate-pulse rounded-3xl bg-gray-200"
                 />
               ))
             ) : galleryItems.length > 0 ? (
@@ -322,7 +322,7 @@ export default function AdminGallery() {
                 <motion.div
                   key={item._id}
                   variants={itemVariants}
-                  className="overflow-hidden rounded-3xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:bg-gray-900"
+                  className="overflow-hidden rounded-3xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
                 >
                   {/* IMAGE */}
                   <div className="h-60 overflow-hidden bg-gray-100">
@@ -350,7 +350,7 @@ export default function AdminGallery() {
                     </h3>
 
                     {item.description && (
-                      <p className="mt-2 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                      <p className="mt-2 line-clamp-2 text-sm text-gray-600 ">
                         {item.description}
                       </p>
                     )}
@@ -360,7 +360,7 @@ export default function AdminGallery() {
                         id: item._id,
                         title: item.title || 'gallery image',
                       })}
-                      className="mt-4 w-full rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950"
+                      className="mt-4 w-full rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 "
                     >
                       🗑️ Delete
                     </button>
@@ -369,7 +369,7 @@ export default function AdminGallery() {
               ))
             ) : (
               <div className="col-span-full rounded-3xl border-2 border-dashed border-gray-300 p-12 text-center">
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600 ">
                   No gallery items found
                 </p>
               </div>
@@ -379,18 +379,18 @@ export default function AdminGallery() {
 
         {deleteTarget && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
-            <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-950 dark:text-white">
-              <h3 className="text-xl font-bold text-black dark:text-white">
+            <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+              <h3 className="text-xl font-bold text-black ">
                 Delete Gallery Image
               </h3>
-              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+              <p className="mt-3 text-sm text-gray-600 ">
                 Are you sure you want to delete "{deleteTarget.title}"? This action cannot be undone.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(null)}
-                  className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                  className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
                 >
                   Cancel
                 </button>

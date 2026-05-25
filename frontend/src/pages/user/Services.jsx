@@ -63,7 +63,7 @@ export default function Services() {
       <div className="px-4 pt-4">
 
         {/* HEADER */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
 
           <h1 className="text-3xl md:text-4xl font-black text-black">
             Discover Luxury Services
@@ -74,7 +74,7 @@ export default function Services() {
             book premium salon experiences.
           </p>
 
-        </div>
+        </div> */}
 
         {/* SEARCH */}
         <div className="mb-5">
@@ -331,7 +331,7 @@ export default function Services() {
                       </div>
 
                       {/* BADGES */}
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 items-center">
 
                         <span
                           className="
@@ -361,6 +361,31 @@ export default function Services() {
                           Premium
                         </span>
 
+                      </div>
+
+                      {/* BOOK NOW BUTTON */}
+                      <div className="mt-3 sm:mt-0 sm:ml-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            service?._id && navigate(`/services/${service._id}`)
+                          }}
+                          className="
+                            w-full
+                            sm:w-auto
+                            rounded-xl
+                            bg-pink-600
+                            px-4
+                            py-2
+                            text-white
+                            font-semibold
+                            active:scale-[0.99]
+                            transition
+                            duration-200
+                          "
+                        >
+                          Book Now
+                        </button>
                       </div>
 
                     </div>

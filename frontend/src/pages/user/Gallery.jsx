@@ -82,10 +82,10 @@ export default function Gallery() {
         variants={containerVariants}
         initial="initial"
         animate="animate"
-        className="min-h-screen pb-32 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black"
+        className="min-h-screen pb-32 bg-gradient-to-br from-gray-50 to-gray-100"
       >
         {/* Header */}
-        <section className="px-3 sm:px-4 pt-4 sm:pt-5 sticky top-0 z-30 bg-gradient-to-b from-gray-50 to-gray-50/80 dark:from-gray-900 dark:to-gray-900/80 backdrop-blur-sm">
+        {/* <section className="px-3 sm:px-4 pt-4 sm:pt-5 sticky top-0 z-30 bg-gradient-to-b from-gray-50 to-gray-50/80 dark:from-gray-900 dark:to-gray-900/80 backdrop-blur-sm">
           <div className="relative overflow-hidden rounded-2xl sm:rounded-[2rem] bg-gradient-to-br from-black via-gray-900 to-gray-800 p-5 sm:p-8 shadow-2xl">
             <div className="absolute top-0 right-0 w-48 sm:w-72 h-48 sm:h-72 bg-pink-500/20 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-48 sm:w-72 h-48 sm:h-72 bg-purple-500/20 blur-3xl rounded-full" />
@@ -107,7 +107,7 @@ export default function Gallery() {
               </p>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Gallery Grid - Pinterest Masonry */}
         <section className="px-2 sm:px-4 mt-6 sm:mt-10">
@@ -116,7 +116,7 @@ export default function Gallery() {
               {Array.from({ length: 12 }).map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse h-64 sm:h-80"
+                  className="rounded-2xl bg-gray-200 animate-pulse h-64 sm:h-80"
                 />
               ))}
             </div>
@@ -129,9 +129,9 @@ export default function Gallery() {
                   whileHover={{ y: -3 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedImage(item)}
-                  className="group relative overflow-hidden rounded-2xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800"
+                  className="group relative overflow-hidden rounded-2xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 bg-white"
                 >
-                  <div className="relative overflow-hidden bg-gray-200 dark:bg-gray-700">
+                  <div className="relative overflow-hidden bg-gray-200 ">
                     <img
                       src={imageError[item?._id] ? '/placeholder.jpg' : (item?.image || item?.imageUrl)}
                       alt={item?.title || 'Gallery'}
@@ -164,10 +164,10 @@ export default function Gallery() {
             </div>
           ) : (
             <div className="text-center py-24 px-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 📷 No Images Yet
               </h2>
-              <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm sm:text-base">
+              <p className="text-gray-500 mt-2 text-sm sm:text-base">
                 Gallery coming soon!
               </p>
             </div>

@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-luxury-light dark:bg-luxury-dark text-gray-900 dark:text-white transition-colors;
+    @apply bg-luxury-light text-gray-900 transition-colors;
     overflow-x: hidden;
   }
 }
@@ -15,7 +15,7 @@
 
 @layer components {
   .glass-effect {
-    @apply backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10;
+    @apply backdrop-blur-xl bg-white/10 border border-white/20;
   }
 
   .luxury-gradient {
@@ -27,7 +27,7 @@
   }
 
   .btn-secondary {
-    @apply px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-full font-semibold hover:shadow-luxury transition-all duration-300;
+    @apply px-6 py-3 bg-gray-200 text-gray-900 rounded-full font-semibold hover:shadow-luxury transition-all duration-300;
   }
 
   .card-glass {

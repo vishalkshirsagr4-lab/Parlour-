@@ -273,12 +273,12 @@ export default function ServiceDetails() {
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
                 />
 
-                <button
+                {/* <button
                   onClick={handleChat}
                   className="w-full rounded-xl border border-pink-500 bg-pink-50 py-3 font-semibold text-pink-600 active:scale-[0.99]"
                 >
                   Chat with stylist
-                </button>
+                </button> */}
 
                 <button
                   onClick={handleBooking}

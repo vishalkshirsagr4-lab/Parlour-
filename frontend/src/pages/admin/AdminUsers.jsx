@@ -100,7 +100,7 @@ export default function AdminUsers() {
         <div className="grid gap-4 sm:grid-cols-2">
           <motion.div
             variants={itemVariants}
-            className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm dark:bg-gray-900"
+            className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm "
           >
             <p className="text-sm uppercase tracking-[0.3em] text-gray-500">
               Total Users
@@ -113,7 +113,7 @@ export default function AdminUsers() {
 
           <motion.div
             variants={itemVariants}
-            className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm dark:bg-gray-900"
+            className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm "
           >
             <p className="text-sm uppercase tracking-[0.3em] text-gray-500">
               Active / Blocked
@@ -148,7 +148,7 @@ export default function AdminUsers() {
               Array.from({ length: 5 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-28 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800"
+                  className="h-28 animate-pulse rounded-3xl bg-gray-200 "
                 />
               ))
             ) : users.length > 0 ? (
@@ -172,8 +172,8 @@ export default function AdminUsers() {
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-medium ${
                           user.isBlocked
-                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                            : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            ? 'bg-red-100 text-red-700 '
+                            : 'bg-green-100 text-green-700 '
                         }`}
                       >
                         {user.isBlocked
@@ -181,17 +181,17 @@ export default function AdminUsers() {
                           : '✅ Active'}
                       </span>
 
-                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 ">
                         {user.role || 'user'}
                       </span>
                     </div>
 
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-2 text-sm text-gray-600 ">
                       📧 {user.email}
                     </p>
 
                     {user.phone && (
-                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      <p className="mt-1 text-sm text-gray-600 ">
                         📱 {user.phone}
                       </p>
                     )}
@@ -218,7 +218,7 @@ export default function AdminUsers() {
                         disabled={
                           unblockMutation.isPending
                         }
-                        className="rounded-full border border-green-600 px-5 py-2 font-medium text-green-600 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-green-950"
+                        className="rounded-full border border-green-600 px-5 py-2 font-medium text-green-600 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60 "
                       >
                         ✅ Unblock
                       </button>
@@ -232,7 +232,7 @@ export default function AdminUsers() {
                         disabled={
                           blockMutation.isPending
                         }
-                        className="rounded-full border border-rose-500 px-5 py-2 font-medium text-rose-500 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-rose-950"
+                        className="rounded-full border border-rose-500 px-5 py-2 font-medium text-rose-500 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 "
                       >
                         🚫 Block
                       </button>
@@ -242,7 +242,7 @@ export default function AdminUsers() {
               ))
             ) : (
               <div className="rounded-3xl border-2 border-dashed border-gray-300 p-10 text-center">
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600 ">
                   No users found.
                 </p>
               </div>

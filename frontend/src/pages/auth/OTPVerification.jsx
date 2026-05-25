@@ -64,7 +64,7 @@ export default function OTPVerification() {
     >
       <div className="w-full max-w-md glass-effect rounded-3xl p-8">
         <h2 className="text-3xl font-bold text-center mb-2">Verify OTP</h2>
-        <p className="text-center text-gray-600 dark:text-gray-400 mb-8">Enter the OTP sent to {email}</p>
+        <p className="text-center text-gray-600  mb-8">Enter the OTP sent to {email}</p>
 
         <form onSubmit={handleVerify} className="space-y-6">
           <div className="flex gap-2 justify-center">
@@ -76,7 +76,7 @@ export default function OTPVerification() {
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 maxLength="1"
-                className="w-12 h-12 text-center text-xl font-bold rounded-lg bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+                className="w-12 h-12 text-center text-xl font-bold rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-pink"
               />
             ))}
           </div>
@@ -90,7 +90,7 @@ export default function OTPVerification() {
           </button>
         </form>
 
-        <p className="text-center text-sm mt-6 text-gray-600 dark:text-gray-400">
+        <p className="text-center text-sm mt-6 text-gray-600 ">
           Didn&apos;t receive OTP?{' '}
 
           <button

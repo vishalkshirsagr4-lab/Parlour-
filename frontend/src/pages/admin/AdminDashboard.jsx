@@ -55,14 +55,14 @@ export default function AdminDashboard() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="h-32 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800" />
+                <div key={index} className="h-32 animate-pulse rounded-3xl bg-gray-200" />
               ))
             ) : (
               stats.map((item) => (
                 <motion.div
                   key={item.label}
                   variants={itemVariants}
-                  className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm dark:bg-gray-900 hover:shadow-lg transition-shadow"
+                  className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm hover:shadow-lg transition-shadow"
                 >
                   <p className="text-sm uppercase tracking-[0.3em] text-gray-500">{item.label}</p>
                   <p className="mt-4 text-4xl font-bold text-rose-pink">{item.value}</p>
@@ -81,10 +81,10 @@ export default function AdminDashboard() {
                 key={action.path}
                 variants={itemVariants}
                 onClick={() => navigate(action.path)}
-                className="rounded-3xl border border-white/20 bg-white/90 p-5 text-left shadow-sm hover:shadow-lg dark:bg-gray-900 transition-all hover:border-rose-pink/50 hover:bg-rose-pink/5"
+                className="rounded-3xl border border-white/20 bg-white/90 p-5 text-left shadow-sm hover:shadow-lg transition-all hover:border-rose-pink/50 hover:bg-rose-pink/5"
               >
                 <p className="font-semibold text-lg">{action.label}</p>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{action.desc}</p>
+                <p className="mt-2 text-sm text-gray-600">{action.desc}</p>
               </motion.button>
             ))}
           </div>

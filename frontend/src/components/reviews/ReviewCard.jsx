@@ -24,7 +24,7 @@ export default function ReviewCard({ review }) {
     >
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800">
+          <div className="h-12 w-12 overflow-hidden rounded-2xl bg-gray-200 ">
             {avatar ? (
               <img
                 src={avatar}
@@ -37,12 +37,12 @@ export default function ReviewCard({ review }) {
             ) : null}
           </div>
           <div>
-            <p className="font-semibold text-black dark:text-white">
+            <p className="font-semibold text-black">
               {userName}
             </p>
             <div className="mt-1 flex items-center gap-2">
               <StarRating value={rating} />
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm text-gray-500 ">
                 {rating ? `${rating}/5` : 'New'}
               </span>
             </div>
@@ -50,7 +50,7 @@ export default function ReviewCard({ review }) {
         </div>
 
         {date ? (
-          <p className="text-right text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-right text-sm text-gray-500">
             {new Date(date).toLocaleDateString(undefined, {
               year: 'numeric',
               month: 'short',
@@ -62,12 +62,12 @@ export default function ReviewCard({ review }) {
         )}
       </div>
 
-      <p className="mt-4 text-gray-700 dark:text-gray-300 leading-relaxed">
+      <p className="mt-4 text-gray-700">
         {comment}
       </p>
 
       {reviewImage ? (
-        <div className="mt-4 overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-900">
+        <div className="mt-4 overflow-hidden rounded-3xl bg-gray-100">
           <img
             src={reviewImage}
             alt={`Review image by ${userName}`}

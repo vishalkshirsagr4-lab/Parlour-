@@ -64,7 +64,7 @@ export default function Login() {
     >
       <div className="w-full max-w-md glass-effect rounded-3xl p-8">
         <h2 className="text-3xl font-bold text-center mb-2">Welcome Back</h2>
-        <p className="text-center text-gray-600 dark:text-gray-400 mb-8">Login to your salon account</p>
+        <p className="text-center text-gray-600  mb-8">Login to your salon account</p>
 
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <div>
@@ -73,7 +73,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-rose-pink"
+              className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-pink"
               placeholder="you@example.com"
             />
           </div>
@@ -88,9 +88,9 @@ export default function Login() {
         </form>
 
         <div className="my-6 flex items-center gap-4">
-          <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
-          <span className="text-sm text-gray-600 dark:text-gray-400">or</span>
-          <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
+          <div className="flex-1 h-px bg-gray-300 " />
+          <span className="text-sm text-gray-600 ">or</span>
+          <div className="flex-1 h-px bg-gray-300 " />
         </div>
 
         <button

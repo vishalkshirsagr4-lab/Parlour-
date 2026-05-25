@@ -55,7 +55,7 @@ export default function AdminBookings() {
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className="h-32 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800"
+            className="h-32 animate-pulse rounded-3xl bg-gray-200"
           />
         ))}
       </div>
@@ -77,7 +77,7 @@ export default function AdminBookings() {
         animate="animate"
         className="space-y-4"
       >
-        <div className="rounded-3xl border bg-white p-4 dark:bg-gray-900">
+        <div className="rounded-3xl border bg-white p-4">
           <div className="flex items-center gap-2 text-sm">
             <span>📊 Total Bookings:</span>
 
@@ -100,7 +100,7 @@ export default function AdminBookings() {
                     {booking.service?.title || 'Service'}
                   </h2>
 
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <p className="mt-2 text-sm text-gray-600">
                     👤 {booking.user?.name || 'Unknown User'}
                     {' • '}
                     💅 {booking.staff?.name || 'Stylist TBD'}
@@ -135,7 +135,7 @@ export default function AdminBookings() {
                     className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
                       booking.status === status.value
                         ? 'bg-rose-pink text-white shadow-lg'
-                        : 'border border-gray-200 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800'
+                        : 'border border-gray-200 hover:bg-gray-100'
                     }`}
                   >
                     {status.label}
@@ -146,7 +146,7 @@ export default function AdminBookings() {
           ))
         ) : (
           <div className="rounded-3xl border-2 border-dashed border-gray-300 p-8 text-center">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 ">
               No bookings found.
             </p>
           </div>

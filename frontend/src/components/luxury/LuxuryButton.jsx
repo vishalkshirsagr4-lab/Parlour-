@@ -30,7 +30,7 @@ const LuxuryButton = forwardRef(function LuxuryButton(
       : variant === 'primary'
         ? 'btn-primary'
         : variant === 'ghost'
-          ? 'bg-transparent text-white/90 hover:bg-white/10 border border-white/20 dark:border-white/10 backdrop-blur-xl'
+          ? 'bg-transparent text-white/90 hover:bg-white/10 border border-white/20 backdrop-blur-xl'
           : 'btn-primary'
 
   return (

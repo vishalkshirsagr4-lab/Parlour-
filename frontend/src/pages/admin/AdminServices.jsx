@@ -300,7 +300,7 @@ export default function AdminServices() {
                   })
                 }
                 placeholder="e.g., Bridal Makeup"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink "
               />
             </div>
 
@@ -319,7 +319,7 @@ export default function AdminServices() {
                     category: e.target.value,
                   })
                 }
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink "
               >
                 <option value="">
                   {categoriesLoading
@@ -357,7 +357,7 @@ export default function AdminServices() {
                   })
                 }
                 placeholder="0.00"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink "
               />
             </div>
 
@@ -380,7 +380,7 @@ export default function AdminServices() {
                   })
                 }
                 placeholder="0"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink"
               />
             </div>
 
@@ -401,7 +401,7 @@ export default function AdminServices() {
                   })
                 }
                 placeholder="30"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink "
               />
             </div>
 
@@ -421,13 +421,13 @@ export default function AdminServices() {
               />
 
               {editingServiceId && (
-                <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+                <p className="mt-2 text-xs text-blue-600 ">
                   ℹ️ Uploading new images is optional. Existing images will be preserved if you don't upload new ones.
                 </p>
               )}
 
               {images.length > 0 && (
-                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-xs text-gray-600 ">
                   {images.length} image(s) selected
                 </p>
               )}
@@ -444,7 +444,7 @@ export default function AdminServices() {
                   {imagePreview.map((preview, idx) => (
                     <div
                       key={idx}
-                      className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700"
+                      className="overflow-hidden rounded-2xl border border-gray-200 "
                     >
                       <img
                         src={preview}
@@ -468,7 +468,7 @@ export default function AdminServices() {
                   {editingService.images.map((imageUrl, idx) => (
                     <div
                       key={idx}
-                      className="overflow-hidden rounded-2xl border border-gray-300 dark:border-gray-600"
+                      className="overflow-hidden rounded-2xl border border-gray-300 "
                     >
                       <img
                         src={imageUrl}
@@ -500,7 +500,7 @@ export default function AdminServices() {
                   })
                 }
                 placeholder="Describe the service..."
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink"
               />
             </div>
 
@@ -520,7 +520,7 @@ export default function AdminServices() {
                   })
                 }
                 placeholder="Aloe Vera, Serum, SPF"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink "
               />
             </div>
 
@@ -540,7 +540,7 @@ export default function AdminServices() {
                   })
                 }
                 placeholder="Glowing skin, Hydration"
-                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink dark:border-gray-700 dark:bg-gray-900"
+                className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-pink "
               />
             </div>
           </div>
@@ -589,11 +589,11 @@ export default function AdminServices() {
               Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-36 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800"
+                  className="h-36 animate-pulse rounded-3xl bg-gray-200 "
                 />
               ))
             ) : servicesError ? (
-              <div className="rounded-3xl border border-red-300 bg-red-50 p-6 text-red-600 dark:border-red-800 dark:bg-red-950/20 dark:text-red-400">
+              <div className="rounded-3xl border border-red-300 bg-red-50 p-6 text-red-600 ">
                 Could not load services
               </div>
             ) : services.length > 0 ? (
@@ -607,7 +607,7 @@ export default function AdminServices() {
                     {/* Left */}
                     <div className="flex flex-1 gap-4">
                       {/* Image */}
-                      <div className="h-28 w-28 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800">
+                      <div className="h-28 w-28 overflow-hidden rounded-2xl bg-gray-100 ">
                         <img
                           src={
                             service.images?.[0] ||
@@ -624,14 +624,14 @@ export default function AdminServices() {
                           {service.title}
                         </h3>
 
-                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        <p className="mt-1 text-sm text-gray-600 ">
                           📁{' '}
                           {service.category?.name ||
                             'Uncategorized'}
                         </p>
 
                         {service.description && (
-                          <p className="mt-2 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                          <p className="mt-2 line-clamp-2 text-sm text-gray-600">
                             {service.description}
                           </p>
                         )}
@@ -680,7 +680,7 @@ export default function AdminServices() {
 
                       <button
                         onClick={() => handleEditService(service)}
-                        className="rounded-full border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800/60"
+                        className="rounded-full border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-100 "
                       >
                         ✏️ Edit
                       </button>
@@ -692,7 +692,7 @@ export default function AdminServices() {
                             title: service.title || 'service',
                           })
                         }
-                        className="rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                        className="rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50"
                       >
                         🗑️ Delete
                       </button>
@@ -701,8 +701,8 @@ export default function AdminServices() {
                 </motion.div>
               ))
             ) : (
-              <div className="rounded-3xl border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
-                <p className="text-gray-600 dark:text-gray-400">
+              <div className="rounded-3xl border-2 border-dashed border-gray-300 p-8 text-center ">
+                <p className="text-gray-600 ">
                   No services yet. Create your first service
                   above! ✨
                 </p>
@@ -713,18 +713,18 @@ export default function AdminServices() {
 
         {confirmDeleteService && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
-            <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-950 dark:text-white">
-              <h3 className="text-xl font-bold text-black dark:text-white">
+            <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl ">
+              <h3 className="text-xl font-bold text-black ">
                 Delete Service
               </h3>
-              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+              <p className="mt-3 text-sm text-gray-600 ">
                 Are you sure you want to delete "{confirmDeleteService.title}"? This cannot be undone.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={() => setConfirmDeleteService(null)}
-                  className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                  className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
                 >
                   Cancel
                 </button>

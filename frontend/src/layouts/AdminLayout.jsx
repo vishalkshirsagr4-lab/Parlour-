@@ -17,9 +17,9 @@ export default function AdminLayout({ children, title, description }) {
   const location = useLocation()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50 ">
       {/* Header with Back Button */}
-      <div className="sticky top-0 z-40 border-b border-white/10 bg-white/80 backdrop-blur-lg dark:bg-gray-900/80">
+      <div className="sticky top-0 z-40 border-b border-white/10 bg-white/80 backdrop-blur-lg">
         <div className="px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -31,7 +31,7 @@ export default function AdminLayout({ children, title, description }) {
             </button>
             <div>
               <h1 className="text-2xl font-bold">{title || 'Admin Dashboard'}</h1>
-              {description && <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>}
+              {description && <p className="text-sm text-gray-600 ">{description}</p>}
             </div>
           </div>
         </div>
@@ -44,7 +44,7 @@ export default function AdminLayout({ children, title, description }) {
           animate={{ opacity: 1, x: 0 }}
           className="lg:w-72 flex-shrink-0"
         >
-          <div className="rounded-3xl border border-white/20 bg-white/90 shadow-sm dark:bg-gray-900 p-3 space-y-2">
+          <div className="rounded-3xl border border-white/20 bg-white/90 shadow-sm p-3 space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 px-3 py-2">Admin Menu</p>
             {adminPages.map((page) => (
               <button
@@ -53,7 +53,7 @@ export default function AdminLayout({ children, title, description }) {
                 className={`w-full text-left px-4 py-3 rounded-2xl transition-all ${
                   location.pathname === page.path
                     ? 'bg-rose-pink/20 text-rose-pink border border-rose-pink/30'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-700'
                 }`}
               >
                 <span className="text-lg mr-2">{page.icon}</span>

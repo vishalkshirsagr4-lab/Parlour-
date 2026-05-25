@@ -33,13 +33,13 @@ export default function Bookings() {
       <div className="px-4 pt-4">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">Your Appointments</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">Track appointment requests and upcoming salon experiences.</p>
+          <p className="mt-2 text-gray-600 ">Track appointment requests and upcoming salon experiences.</p>
         </div>
 
         <div className="space-y-4">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="h-32 animate-pulse rounded-3xl bg-gray-200 dark:bg-gray-800" />
+              <div key={index} className="h-32 animate-pulse rounded-3xl bg-gray-200 " />
             ))
           ) : bookings?.length ? (
             bookings.map((booking) => (
@@ -52,19 +52,19 @@ export default function Bookings() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-xl font-semibold">{booking.service?.title || 'Luxury service'}</h2>
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{booking.staff?.name || 'Assigned stylist'} • {format(new Date(booking.date), 'MMM dd, yyyy')}</p>
+                    <p className="mt-2 text-sm text-gray-600 ">{booking.staff?.name || 'Assigned stylist'} • {format(new Date(booking.date), 'MMM dd, yyyy')}</p>
                   </div>
                   <span className={`rounded-full px-4 py-2 text-sm font-semibold ${statusStyles[booking.status] || 'bg-gray-100 text-gray-800'}`}>{booking.status.replace('_', ' ')}</span>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-500 ">
                   <span>{booking.timeSlot}</span>
                   <span>₹{booking.totalAmount}</span>
                 </div>
               </motion.button>
             ))
           ) : (
-            <div className="rounded-3xl border border-dashed border-gray-300 p-8 text-center text-gray-600 dark:border-gray-700 dark:text-gray-300">
+            <div className="rounded-3xl border border-dashed border-gray-300 p-8 text-center text-gray-600 ">
               <h2 className="text-xl font-semibold">No bookings yet</h2>
               <p className="mt-2">Browse services and request your first premium appointment.</p>
             </div>

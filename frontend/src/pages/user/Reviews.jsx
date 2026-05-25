@@ -77,10 +77,10 @@ export default function Reviews() {
         <div className="px-4 pt-5">
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-black text-black dark:text-white">
+              <h1 className="text-3xl md:text-4xl font-black text-black">
                 Reviews
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-300">
+              <p className="mt-2 text-gray-600 ">
                 Luxury feedback from our clients.
               </p>
             </div>
@@ -88,7 +88,7 @@ export default function Reviews() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="rounded-2xl border border-rose-pink px-4 py-2 text-sm font-semibold text-rose-pink transition hover:bg-rose-pink/10 dark:border-rose-400/30 dark:text-rose-300"
+              className="rounded-2xl border border-rose-pink px-4 py-2 text-sm font-semibold text-rose-pink transition hover:bg-rose-pink/10 "
             >
               ← Back
             </button>
