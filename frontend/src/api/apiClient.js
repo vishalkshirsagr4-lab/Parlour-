@@ -5,9 +5,6 @@ const API_BASE_URL = 'https://parlour-vr34.onrender.com/api'
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
   withCredentials: true,
 })
 
@@ -17,6 +14,12 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  
+  // Handle FormData: don't set Content-Type header, let axios auto-detect
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
+  
   return config
 })
 

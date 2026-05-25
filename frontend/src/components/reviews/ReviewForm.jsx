@@ -98,7 +98,7 @@ export default function ReviewForm({
             <label className="block text-sm font-medium text-black dark:text-[#333]">
               Star rating
             </label>
-            <div className="text-sm font-semibold text-gray">
+            <div className="text-sm font-semibold text-[#333]">
               {rating ? `${rating} / 5` : ''}
             </div>
           </div>

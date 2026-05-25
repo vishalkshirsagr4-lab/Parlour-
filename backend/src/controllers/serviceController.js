@@ -158,28 +158,78 @@ export const createService = async (req, res) => {
       benefits,
     } = req.body;
 
-    const finalPrice = price - (price * discount) / 100;
+    // Validate required fields
+    if (!title || !category || !price) {
+      return res.status(400).json({ 
+        message: 'Title, category, and price are required' 
+      });
+    }
+
+    // Validate images were uploaded
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ 
+        message: 'At least one image is required for service creation' 
+      });
+    }
+
+    // Convert to correct types
+    const priceNum = parseFloat(price);
+    const discountNum = parseFloat(discount) || 0;
+    const durationNum = parseInt(duration) || 30;
+
+    if (isNaN(priceNum) || priceNum <= 0) {
+      return res.status(400).json({ 
+        message: 'Price must be a valid positive number' 
+      });
+    }
+
+    const finalPrice = priceNum - (priceNum * discountNum) / 100;
+
+    let parsedIngredients = [];
+    let parsedBenefits = [];
+
+    try {
+      parsedIngredients = ingredients ? JSON.parse(ingredients) : [];
+      parsedBenefits = benefits ? JSON.parse(benefits) : [];
+    } catch (parseErr) {
+      return res.status(400).json({ 
+        message: 'Invalid ingredients or benefits format' 
+      });
+    }
 
     const service = new Service({
       title,
       description,
       category,
-      price,
-      discount,
+      price: priceNum,
+      discount: discountNum,
       finalPrice,
-      duration,
-      ingredients: ingredients ? JSON.parse(ingredients) : [],
-      benefits: benefits ? JSON.parse(benefits) : [],
+      duration: durationNum,
+      ingredients: parsedIngredients,
+      benefits: parsedBenefits,
     });
 
-    // Upload images if provided
-    if (req.files) {
+    // Upload images
+    try {
       for (const file of req.files) {
         const uploadedImage = await uploadToS3(file.path, 'services');
         service.images.push(uploadedImage.url);
         service.imagePublicIds.push(uploadedImage.key);
-        fs.unlinkSync(file.path);
+        // Clean up temp file
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
       }
+    } catch (uploadErr) {
+      // Clean up any remaining temp files
+      req.files.forEach(file => {
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      });
+      return res.status(500).json({ 
+        message: 'Failed to upload images: ' + uploadErr.message 
+      });
     }
 
     await service.save();
@@ -189,7 +239,18 @@ export const createService = async (req, res) => {
       service,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    // Clean up any remaining temp files
+    if (req.files) {
+      req.files.forEach(file => {
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      });
+    }
+    console.error('❌ Create Service Error:', error);
+    res.status(500).json({ 
+      message: error.message || 'Failed to create service' 
+    });
   }
 };
 
@@ -212,22 +273,79 @@ export const updateService = async (req, res) => {
       return res.status(404).json({ message: 'Service not found' });
     }
 
-    service.title = title || service.title;
-    service.description = description || service.description;
-    service.category = category || service.category;
-    service.price = price || service.price;
-    service.discount = discount !== undefined ? discount : service.discount;
-    service.duration = duration || service.duration;
-    service.ingredients = ingredients ? JSON.parse(ingredients) : service.ingredients;
-    service.benefits = benefits ? JSON.parse(benefits) : service.benefits;
+    // Update basic fields
+    if (title) service.title = title;
+    if (description !== undefined) service.description = description;
+    if (category) service.category = category;
+    if (duration) service.duration = parseInt(duration);
+
+    // Handle numeric fields with proper type conversion
+    if (price) {
+      const priceNum = parseFloat(price);
+      if (isNaN(priceNum) || priceNum <= 0) {
+        return res.status(400).json({ 
+          message: 'Price must be a valid positive number' 
+        });
+      }
+      service.price = priceNum;
+    }
+
+    if (discount !== undefined) {
+      const discountNum = parseFloat(discount);
+      if (isNaN(discountNum) || discountNum < 0 || discountNum > 100) {
+        return res.status(400).json({ 
+          message: 'Discount must be between 0 and 100' 
+        });
+      }
+      service.discount = discountNum;
+    }
+
+    // Recalculate final price
     service.finalPrice = service.price - (service.price * service.discount) / 100;
 
+    // Handle ingredients and benefits
+    if (ingredients) {
+      try {
+        service.ingredients = JSON.parse(ingredients);
+      } catch (err) {
+        return res.status(400).json({ 
+          message: 'Invalid ingredients format' 
+        });
+      }
+    }
+
+    if (benefits) {
+      try {
+        service.benefits = JSON.parse(benefits);
+      } catch (err) {
+        return res.status(400).json({ 
+          message: 'Invalid benefits format' 
+        });
+      }
+    }
+
+    // Handle new images if uploaded
     if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const uploadedImage = await uploadToS3(file.path, 'services');
-        service.images.push(uploadedImage.url);
-        service.imagePublicIds.push(uploadedImage.key);
-        fs.unlinkSync(file.path);
+      try {
+        for (const file of req.files) {
+          const uploadedImage = await uploadToS3(file.path, 'services');
+          service.images.push(uploadedImage.url);
+          service.imagePublicIds.push(uploadedImage.key);
+          // Clean up temp file
+          if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        }
+      } catch (uploadErr) {
+        // Clean up any remaining temp files
+        req.files.forEach(file => {
+          if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        });
+        return res.status(500).json({ 
+          message: 'Failed to upload images: ' + uploadErr.message 
+        });
       }
     }
 
@@ -238,7 +356,18 @@ export const updateService = async (req, res) => {
       service,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    // Clean up any remaining temp files
+    if (req.files) {
+      req.files.forEach(file => {
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      });
+    }
+    console.error('❌ Update Service Error:', error);
+    res.status(500).json({ 
+      message: error.message || 'Failed to update service' 
+    });
   }
 };
 

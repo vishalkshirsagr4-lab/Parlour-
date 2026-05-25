@@ -23,6 +23,7 @@ export default function AdminServices() {
   const [images, setImages] = useState([])
   const [imagePreview, setImagePreview] = useState([])
   const [editingServiceId, setEditingServiceId] = useState(null)
+  const [editingService, setEditingService] = useState(null)
   const [confirmDeleteService, setConfirmDeleteService] = useState(null)
 
   // =========================
@@ -105,6 +106,7 @@ export default function AdminServices() {
       setImages([])
       setImagePreview([])
       setEditingServiceId(null)
+      setEditingService(null)
     },
 
     onError: (error) => {
@@ -161,6 +163,7 @@ export default function AdminServices() {
 
   const handleEditService = (service) => {
     setEditingServiceId(service._id)
+    setEditingService(service)
     setForm({
       title: service.title || '',
       description: service.description || '',
@@ -181,6 +184,7 @@ export default function AdminServices() {
 
   const handleCancelEdit = () => {
     setEditingServiceId(null)
+    setEditingService(null)
     setForm(initialForm)
     setImages([])
     setImagePreview([])
@@ -193,50 +197,61 @@ export default function AdminServices() {
     e.preventDefault()
     const isEditing = Boolean(editingServiceId)
 
-    if (
-      !form.title ||
-      !form.category ||
-      !form.price ||
-      (!isEditing && images.length === 0)
-    ) {
-      toast.error(
-        'Please fill all required fields and upload at least one image'
-      )
+    // Comprehensive validation
+    if (!form.title || form.title.trim() === '') {
+      toast.error('❌ Service title is required')
+      return
+    }
+
+    if (!form.category) {
+      toast.error('❌ Please select a category')
+      return
+    }
+
+    if (!form.price || parseFloat(form.price) <= 0) {
+      toast.error('❌ Price must be greater than 0')
+      return
+    }
+
+    if (!isEditing && images.length === 0) {
+      toast.error('❌ At least one image is required for new services')
+      return
+    }
+
+    if (form.discount && (parseFloat(form.discount) < 0 || parseFloat(form.discount) > 100)) {
+      toast.error('❌ Discount must be between 0 and 100')
       return
     }
 
     const payload = new FormData()
 
-    payload.append('title', form.title)
-    payload.append('description', form.description)
+    payload.append('title', form.title.trim())
+    payload.append('description', form.description.trim())
     payload.append('category', form.category)
-    payload.append('price', form.price)
-    payload.append('discount', form.discount || '0')
-    payload.append('duration', form.duration || '30')
+    payload.append('price', parseFloat(form.price))
+    payload.append('discount', parseFloat(form.discount) || 0)
+    payload.append('duration', parseInt(form.duration) || 30)
 
-    payload.append(
-      'ingredients',
-      JSON.stringify(
-        form.ingredients
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean)
-      )
-    )
+    // Parse and validate ingredients/benefits
+    const ingredientsList = form.ingredients
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+    
+    const benefitsList = form.benefits
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
 
-    payload.append(
-      'benefits',
-      JSON.stringify(
-        form.benefits
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean)
-      )
-    )
+    payload.append('ingredients', JSON.stringify(ingredientsList))
+    payload.append('benefits', JSON.stringify(benefitsList))
 
-    images.forEach((file) => {
-      payload.append('images', file)
-    })
+    // Append new images
+    if (images.length > 0) {
+      images.forEach((file) => {
+        payload.append('images', file)
+      })
+    }
 
     if (editingServiceId) {
       updateServiceMutation.mutate({
@@ -393,7 +408,7 @@ export default function AdminServices() {
             {/* Upload Images */}
             <div>
               <label className="mb-2 block text-sm font-medium">
-                Upload Images *
+                Upload Images {!editingServiceId && '*'}
               </label>
 
               <input
@@ -404,6 +419,12 @@ export default function AdminServices() {
                 onChange={handleImageChange}
                 className="w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-rose-pink file:px-4 file:py-2 file:text-white"
               />
+
+              {editingServiceId && (
+                <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+                  ℹ️ Uploading new images is optional. Existing images will be preserved if you don't upload new ones.
+                </p>
+              )}
 
               {images.length > 0 && (
                 <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
@@ -416,7 +437,7 @@ export default function AdminServices() {
             {imagePreview.length > 0 && (
               <div className="lg:col-span-2">
                 <label className="mb-2 block text-sm font-medium">
-                  Image Preview
+                  New Images Preview
                 </label>
 
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -429,6 +450,33 @@ export default function AdminServices() {
                         src={preview}
                         alt={`Preview ${idx + 1}`}
                         className="h-24 w-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Current Images (when editing) */}
+            {editingService?.images && editingService.images.length > 0 && (
+              <div className="lg:col-span-2">
+                <label className="mb-2 block text-sm font-medium">
+                  Current Service Images
+                </label>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {editingService.images.map((imageUrl, idx) => (
+                    <div
+                      key={idx}
+                      className="overflow-hidden rounded-2xl border border-gray-300 dark:border-gray-600"
+                    >
+                      <img
+                        src={imageUrl}
+                        alt={`Service image ${idx + 1}`}
+                        className="h-24 w-full object-cover"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/100x100?text=Image'
+                        }}
                       />
                     </div>
                   ))}

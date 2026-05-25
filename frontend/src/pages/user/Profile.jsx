@@ -15,6 +15,7 @@ export default function Profile() {
   const queryClient = useQueryClient()
 
   const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const [form, setForm] = useState({
@@ -71,6 +72,7 @@ export default function Profile() {
       }
 
       setImageFile(null)
+      setImagePreview(null)
 
       await queryClient.invalidateQueries({
         queryKey: ['profile'],
@@ -388,13 +390,36 @@ export default function Profile() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) =>
-                      setImageFile(
-                        e.target.files?.[0] || null
-                      )
-                    }
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null
+                      setImageFile(file)
+                      if (file) {
+                        const reader = new FileReader()
+                        reader.onload = (event) => {
+                          setImagePreview(event.target.result)
+                        }
+                        reader.readAsDataURL(file)
+                      } else {
+                        setImagePreview(null)
+                      }
+                    }}
                     className="w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-black file:px-5 file:py-3 file:text-white hover:file:opacity-90 dark:file:bg-white dark:file:text-black"
                   />
+
+                  {imagePreview && (
+                    <div className="mt-3">
+                      <p className="mb-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+                        Preview:
+                      </p>
+                      <div className="h-32 w-32 overflow-hidden rounded-2xl border-2 border-gray-300 dark:border-gray-700">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                 </div>
 

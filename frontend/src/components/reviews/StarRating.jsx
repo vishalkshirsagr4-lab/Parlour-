@@ -16,7 +16,7 @@ function Star({ filled, onClick, onMouseEnter, label }) {
         className={
           filled
             ? 'text-yellow-300 drop-shadow-[0_0_10px_rgba(250,204,21,0.45)]'
-            : 'text-white/40 dark:text-white/30'
+            : 'text-white/40 dark:text-green'
         }
         style={{ fontSize: 22, lineHeight: 1 }}
       >

@@ -28,9 +28,9 @@ export const serviceAPI = {
 
 getCategories: () => apiClient.get('/services/categories'),
 
-createCategory: (data, config) => apiClient.post('/services/categories', data, config),
+createCategory: (data) => apiClient.post('/services/categories', data),
 
-updateCategory: (id, data, config) => apiClient.put(`/services/categories/${id}`, data, config),
+updateCategory: (id, data) => apiClient.put(`/services/categories/${id}`, data),
 
 deleteCategory: (id) => apiClient.delete(`/services/categories/${id}`),
 
@@ -38,9 +38,9 @@ getServices: (params) => apiClient.get('/services', { params }),
 
 getServiceById: (id) => apiClient.get(`/services/${id}`),
 
-createService: (data, config) => apiClient.post('/services', data, config),
+createService: (data) => apiClient.post('/services', data),
 
-updateService: (id, data, config) => apiClient.put(`/services/${id}`, data, config),
+updateService: (id, data) => apiClient.put(`/services/${id}`, data),
 
 deleteService: (id) => apiClient.delete(`/services/${id}`),
 
@@ -70,7 +70,7 @@ export const galleryAPI = {
 
 getGallery: (params) => apiClient.get('/gallery', { params }),
 
-uploadImage: (data, config) => apiClient.post('/gallery', data, config),
+uploadImage: (data) => apiClient.post('/gallery', data),
 
 deleteImage: (id) => apiClient.delete(`/gallery/${id}`),
 
@@ -86,7 +86,7 @@ export const userAPI = {
 
 getProfile: () => apiClient.get('/users/profile'),
 
-updateProfile: (data, config) => apiClient.put('/users/profile', data, config),
+updateProfile: (data) => apiClient.put('/users/profile', data),
 
 addAddress: (data) => apiClient.post('/users/address', data),
 
@@ -114,7 +114,7 @@ deleteUser: (id) => apiClient.delete(`/users/${id}`),
 
 export const reviewAPI = {
 
-createReview: (data, config) => apiClient.post('/reviews', data, config),
+createReview: (data) => apiClient.post('/reviews', data),
   getRecentReviews: (params) => apiClient.get('/reviews/recent', { params }),
   getServiceReviews: (serviceId, params) => apiClient.get(`/reviews/service/${serviceId}`, { params }),
 updateReview: (id, data) => apiClient.put(`/reviews/${id}`, data),
@@ -131,7 +131,7 @@ reportReview: (id, data) => apiClient.post(`/reviews/${id}/report`, data),
 
 export const messageAPI = {
 
-sendMessage: (data, config) => apiClient.post('/messages', data, config),
+sendMessage: (data) => apiClient.post('/messages', data),
 
 getMessages: (userId, params) => apiClient.get(`/messages/conversation/${userId}`, { params }),
 
@@ -163,9 +163,9 @@ export const staffAPI = {
 
 getStaff: () => apiClient.get('/staff'),
 
-createStaff: (data, config) => apiClient.post('/staff', data, config),
+createStaff: (data) => apiClient.post('/staff', data),
 
-updateStaff: (id, data, config) => apiClient.put(`/staff/${id}`, data, config),
+updateStaff: (id, data) => apiClient.put(`/staff/${id}`, data),
 
 deleteStaff: (id) => apiClient.delete(`/staff/${id}`),
 
