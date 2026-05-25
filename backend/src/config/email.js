@@ -9,29 +9,33 @@ let fallbackReason = ''
 const createTransporter = () => {
   const host = process.env.EMAIL_HOST
   const port = Number(process.env.EMAIL_PORT)
-  const secure = process.env.EMAIL_SECURE === 'true'
-
   const user = process.env.EMAIL_USER
   const pass = process.env.EMAIL_PASSWORD
 
   if (!host || !port || !user || !pass) {
     fallbackReason =
       'Missing email environment variables.'
+
     return null
   }
 
   return nodemailer.createTransport({
     host,
     port,
-    secure,
+    secure: false,
 
     auth: {
       user,
       pass,
     },
 
-    connectionTimeout: 20000,
-    socketTimeout: 20000,
+    tls: {
+      rejectUnauthorized: false,
+    },
+
+    connectionTimeout: 60000,
+    greetingTimeout: 30000,
+    socketTimeout: 60000,
   })
 }
 
@@ -39,7 +43,11 @@ export const verifyEmailTransport = async () => {
   transporter = createTransporter()
 
   if (!transporter) {
-    console.warn('✗ Email transport unavailable:', fallbackReason)
+    console.warn(
+      '✗ Email transport unavailable:',
+      fallbackReason
+    )
+
     useConsoleFallback = true
     return
   }
@@ -86,7 +94,10 @@ ${html}
 
     fs.appendFileSync(logFile, entry)
   } catch (err) {
-    console.error('✗ Failed to write email log:', err)
+    console.error(
+      '✗ Failed to write email log:',
+      err
+    )
   }
 }
 
@@ -123,7 +134,11 @@ export const sendOTP = async (email, otp) => {
       `OTP email fallback: Email transport unavailable for ${email}. Reason: ${fallbackReason}`
     )
 
-    logEmailToFile(email, mailOptions.subject, mailOptions.html)
+    logEmailToFile(
+      email,
+      mailOptions.subject,
+      mailOptions.html
+    )
 
     return
   }
@@ -131,14 +146,21 @@ export const sendOTP = async (email, otp) => {
   try {
     await transporter.sendMail(mailOptions)
 
-    console.log('✓ OTP email sent to:', email)
+    console.log(
+      '✓ OTP email sent to:',
+      email
+    )
   } catch (error) {
     console.error(
       '✗ Error sending OTP email:',
       error?.message || error
     )
 
-    logEmailToFile(email, mailOptions.subject, mailOptions.html)
+    logEmailToFile(
+      email,
+      mailOptions.subject,
+      mailOptions.html
+    )
   }
 }
 
@@ -190,7 +212,11 @@ export const sendBookingConfirmation = async (
       `Booking confirmation email fallback for ${email}`
     )
 
-    logEmailToFile(email, mailOptions.subject, mailOptions.html)
+    logEmailToFile(
+      email,
+      mailOptions.subject,
+      mailOptions.html
+    )
 
     return
   }
@@ -198,13 +224,19 @@ export const sendBookingConfirmation = async (
   try {
     await transporter.sendMail(mailOptions)
 
-    console.log('✓ Booking confirmation email sent')
+    console.log(
+      '✓ Booking confirmation email sent'
+    )
   } catch (error) {
     console.error(
       '✗ Error sending booking confirmation:',
       error?.message || error
     )
 
-    logEmailToFile(email, mailOptions.subject, mailOptions.html)
+    logEmailToFile(
+      email,
+      mailOptions.subject,
+      mailOptions.html
+    )
   }
-      }
+}
