@@ -59,6 +59,7 @@ export default function AdminUsers() {
 
   const activeUsers = filtered.filter((u) => !u.isBlocked)
   const blockedUsers = filtered.filter((u) => u.isBlocked)
+  const [viewMode, setViewMode] = useState('active')
 
   return (
     <motion.div
@@ -123,151 +124,178 @@ export default function AdminUsers() {
           ))
         ) : (
           <>
-            {/* Active users section */}
-            <div>
-              <h3 className="mb-3 text-lg font-semibold">Active Users ({activeUsers.length})</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode('active')}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  viewMode === 'active'
+                    ? 'bg-rose-pink text-white shadow-md'
+                    : 'border border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                Active ({activeUsers.length})
+              </button>
 
-              <div className="space-y-4">
-                {activeUsers.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed p-6 text-center text-gray-500">
-                    No active users
-                  </div>
-                ) : (
-                  activeUsers.map((user) => {
-                    const userImage =
-                      user.profileImage ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        user.name || 'User'
-                      )}&background=F3F4F6&color=7C3AED&size=128`
+              <button
+                onClick={() => setViewMode('blocked')}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  viewMode === 'blocked'
+                    ? 'bg-rose-pink text-white shadow-md'
+                    : 'border border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                Blocked ({blockedUsers.length})
+              </button>
+            </div>
 
-                    return (
-                      <motion.div
-                        key={user._id}
-                        variants={itemVariants}
-                        className={`rounded-2xl border bg-white p-4 shadow-sm`}
-                      >
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => setSelectedImage(userImage)}
-                              className="relative h-14 w-14 overflow-hidden rounded-full border"
-                            >
-                              <img
-                                src={userImage}
-                                alt={user.name}
-                                className="h-full w-full object-cover"
-                                onError={(e) =>
-                                  (e.currentTarget.src =
-                                    'https://ui-avatars.com/api/?name=User')
-                                }
-                              />
-                            </button>
+            {/* Render the selected list */}
+            {viewMode === 'active' && (
+              <div>
+                <h3 className="mb-3 text-lg font-semibold">Active Users ({activeUsers.length})</h3>
 
-                            <div className="min-w-0">
-                              <p className="truncate font-semibold">
-                                {user.name || 'Unnamed User'}
-                              </p>
+                <div className="space-y-4">
+                  {activeUsers.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed p-6 text-center text-gray-500">
+                      No active users
+                    </div>
+                  ) : (
+                    activeUsers.map((user) => {
+                      const userImage =
+                        user.profileImage ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          user.name || 'User'
+                        )}&background=F3F4F6&color=7C3AED&size=128`
 
-                              <div className="flex flex-wrap gap-2 mt-1">
-                                <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-600">Active</span>
-                                <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">{user.role || 'user'}</span>
+                      return (
+                        <motion.div
+                          key={user._id}
+                          variants={itemVariants}
+                          className={`rounded-2xl border bg-white p-4 shadow-sm`}
+                        >
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => setSelectedImage(userImage)}
+                                className="relative h-14 w-14 overflow-hidden rounded-full border"
+                              >
+                                <img
+                                  src={userImage}
+                                  alt={user.name}
+                                  className="h-full w-full object-cover"
+                                  onError={(e) =>
+                                    (e.currentTarget.src =
+                                      'https://ui-avatars.com/api/?name=User')
+                                  }
+                                />
+                              </button>
+
+                              <div className="min-w-0">
+                                <p className="truncate font-semibold">
+                                  {user.name || 'Unnamed User'}
+                                </p>
+
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-600">Active</span>
+                                  <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">{user.role || 'user'}</span>
+                                </div>
                               </div>
+                            </div>
+
+                            <div className="text-xs text-gray-500 sm:ml-auto">
+                              <p className="truncate">📧 {user.email}</p>
+                              {user.phone && <p>📱 {user.phone}</p>}
                             </div>
                           </div>
 
-                          <div className="text-xs text-gray-500 sm:ml-auto">
-                            <p className="truncate">📧 {user.email}</p>
-                            {user.phone && <p>📱 {user.phone}</p>}
-                          </div>
-                        </div>
-
-                        <div className="mt-4">
-                          <button
-                            onClick={() => blockMutation.mutate(user._id)}
-                            className="w-full rounded-xl border border-red-500 py-2 text-red-500 font-medium active:scale-95"
-                          >
-                            🚫 Block User
-                          </button>
-                        </div>
-                      </motion.div>
-                    )
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* Blocked users section */}
-            <div>
-              <h3 className="mb-3 text-lg font-semibold">Blocked Users ({blockedUsers.length})</h3>
-
-              <div className="space-y-4">
-                {blockedUsers.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed p-6 text-center text-gray-500">
-                    No blocked users
-                  </div>
-                ) : (
-                  blockedUsers.map((user) => {
-                    const userImage =
-                      user.profileImage ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        user.name || 'User'
-                      )}&background=F3F4F6&color=7C3AED&size=128`
-
-                    return (
-                      <motion.div
-                        key={user._id}
-                        variants={itemVariants}
-                        className={`rounded-2xl border bg-white p-4 shadow-sm opacity-70`}
-                      >
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                          <div className="flex items-center gap-3">
+                          <div className="mt-4">
                             <button
-                              onClick={() => setSelectedImage(userImage)}
-                              className="relative h-14 w-14 overflow-hidden rounded-full border"
+                              onClick={() => blockMutation.mutate(user._id)}
+                              className="w-full rounded-xl border border-red-500 py-2 text-red-500 font-medium active:scale-95"
                             >
-                              <img
-                                src={userImage}
-                                alt={user.name}
-                                className="h-full w-full object-cover"
-                                onError={(e) =>
-                                  (e.currentTarget.src =
-                                    'https://ui-avatars.com/api/?name=User')
-                                }
-                              />
+                              🚫 Block User
                             </button>
+                          </div>
+                        </motion.div>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            )}
 
-                            <div className="min-w-0">
-                              <p className="truncate font-semibold">
-                                {user.name || 'Unnamed User'}
-                              </p>
+            {viewMode === 'blocked' && (
+              <div>
+                <h3 className="mb-3 text-lg font-semibold">Blocked Users ({blockedUsers.length})</h3>
 
-                              <div className="flex flex-wrap gap-2 mt-1">
-                                <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-600">Blocked</span>
-                                <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">{user.role || 'user'}</span>
+                <div className="space-y-4">
+                  {blockedUsers.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed p-6 text-center text-gray-500">
+                      No blocked users
+                    </div>
+                  ) : (
+                    blockedUsers.map((user) => {
+                      const userImage =
+                        user.profileImage ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          user.name || 'User'
+                        )}&background=F3F4F6&color=7C3AED&size=128`
+
+                      return (
+                        <motion.div
+                          key={user._id}
+                          variants={itemVariants}
+                          className={`rounded-2xl border bg-white p-4 shadow-sm opacity-70`}
+                        >
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => setSelectedImage(userImage)}
+                                className="relative h-14 w-14 overflow-hidden rounded-full border"
+                              >
+                                <img
+                                  src={userImage}
+                                  alt={user.name}
+                                  className="h-full w-full object-cover"
+                                  onError={(e) =>
+                                    (e.currentTarget.src =
+                                      'https://ui-avatars.com/api/?name=User')
+                                  }
+                                />
+                              </button>
+
+                              <div className="min-w-0">
+                                <p className="truncate font-semibold">
+                                  {user.name || 'Unnamed User'}
+                                </p>
+
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-600">Blocked</span>
+                                  <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">{user.role || 'user'}</span>
+                                </div>
                               </div>
+                            </div>
+
+                            <div className="text-xs text-gray-500 sm:ml-auto">
+                              <p className="truncate">📧 {user.email}</p>
+                              {user.phone && <p>📱 {user.phone}</p>}
                             </div>
                           </div>
 
-                          <div className="text-xs text-gray-500 sm:ml-auto">
-                            <p className="truncate">📧 {user.email}</p>
-                            {user.phone && <p>📱 {user.phone}</p>}
+                          <div className="mt-4">
+                            <button
+                              onClick={() => unblockMutation.mutate(user._id)}
+                              className="w-full rounded-xl border border-green-600 py-2 text-green-600 font-medium active:scale-95"
+                            >
+                              ✅ Unblock User
+                            </button>
                           </div>
-                        </div>
-
-                        <div className="mt-4">
-                          <button
-                            onClick={() => unblockMutation.mutate(user._id)}
-                            className="w-full rounded-xl border border-green-600 py-2 text-green-600 font-medium active:scale-95"
-                          >
-                            ✅ Unblock User
-                          </button>
-                        </div>
-                      </motion.div>
-                    )
-                  })
-                )}
+                        </motion.div>
+                      )
+                    })
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </div>
