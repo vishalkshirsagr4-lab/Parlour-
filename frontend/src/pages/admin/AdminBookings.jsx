@@ -14,6 +14,14 @@ const statusLabels = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
+const statusStyles = {
+  pending: 'bg-yellow-100 text-yellow-800',
+  confirmed: 'bg-blue-100 text-blue-800',
+  in_progress: 'bg-orange-100 text-orange-800',
+  completed: 'bg-green-100 text-green-800',
+  cancelled: 'bg-red-100 text-red-800',
+}
+
 export default function AdminBookings() {
   const queryClient = useQueryClient()
   const [selectedStatus, setSelectedStatus] = useState('all')
@@ -93,17 +101,20 @@ export default function AdminBookings() {
         ))}
       </div>
 
-      {/* Total */}
       <div className="rounded-3xl border bg-white p-4">
-        <div className="flex items-center gap-2 text-sm">
-          <span>📊 Showing:</span>
-          <span className="font-bold text-rose-pink">
-            {filteredBookings.length}
-          </span>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm">
+            <span>📊 Showing:</span>
+            <span className="font-bold text-rose-pink">{filteredBookings.length}</span>
+          </div>
+          <div className="text-sm text-gray-500">
+            {selectedStatus === 'all'
+              ? 'All bookings'
+              : `Filtered by ${statusLabels.find((item) => item.value === selectedStatus)?.label}`}
+          </div>
         </div>
       </div>
 
-      {/* Bookings */}
       {filteredBookings.length > 0 ? (
         filteredBookings.map((booking) => (
           <motion.div
@@ -111,37 +122,37 @@ export default function AdminBookings() {
             variants={itemVariants}
             className="card-glass rounded-3xl p-5"
           >
-            {/* Info */}
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-xl font-semibold">
                   {booking.service?.title || 'Service'}
                 </h2>
-
                 <p className="mt-2 text-sm text-gray-600">
                   👤 {booking.user?.name || 'Unknown User'} • 💅{' '}
                   {booking.staff?.name || 'Stylist TBD'}
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3 text-sm text-gray-500">
-                <span>
-                  📅{' '}
-                  {booking.date
-                    ? new Date(booking.date).toLocaleDateString()
-                    : 'No date'}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full border border-gray-200 bg-white px-3 py-1 text-sm text-gray-500">
+                  📅 {booking.date ? new Date(booking.date).toLocaleDateString() : 'No date'}
                 </span>
-
-                <span>🕐 {booking.timeSlot || 'No time'}</span>
+                <span className="rounded-full border border-gray-200 bg-white px-3 py-1 text-sm text-gray-500">
+                  🕐 {booking.timeSlot || 'No time'}
+                </span>
+                <span
+                  className={`rounded-full px-3 py-1 text-sm font-semibold ${
+                    statusStyles[booking.status] || 'bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {statusLabels.find((item) => item.value === booking.status)?.label || booking.status}
+                </span>
               </div>
             </div>
 
-            {/* Status Change Buttons */}
             <div className="mt-4 flex flex-wrap gap-2">
               {statusLabels
-                .filter(
-                  (s) => s.value !== 'all' && s.value !== booking.status
-                )
+                .filter((s) => s.value !== 'all' && s.value !== booking.status)
                 .map((status) => (
                   <button
                     key={status.value}
@@ -162,9 +173,7 @@ export default function AdminBookings() {
         ))
       ) : (
         <div className="rounded-3xl border-2 border-dashed border-gray-300 p-8 text-center">
-          <p className="text-gray-600">
-            No bookings found for this status.
-          </p>
+          <p className="text-gray-600">No bookings found for this status.</p>
         </div>
       )}
     </motion.div>

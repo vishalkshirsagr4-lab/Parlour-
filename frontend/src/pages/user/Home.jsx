@@ -42,6 +42,7 @@ export default function Home() {
 
   const [query, setQuery] = useState('')
   const [heroIndex, setHeroIndex] = useState(0)
+  const [selectedImage, setSelectedImage] = useState(null)
 
   const {
     data: categories = [],
@@ -245,11 +246,22 @@ export default function Home() {
 
                   <div className="w-28 h-28 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
                     {m?.image ? (
-                      <img
-                        src={m.image}
-                        alt={m.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => setSelectedImage(m.image)}
+                        className="group relative h-full w-full overflow-hidden"
+                      >
+                        <img
+                          src={m.image}
+                          alt={m.name}
+                          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition duration-300 group-hover:opacity-100">
+                          <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-black">
+                            View
+                          </span>
+                        </div>
+                      </button>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200 text-2xl font-black text-gray-700">
                         {m?.name?.[0] || 'S'}
@@ -319,6 +331,31 @@ export default function Home() {
               ))}
 
           </div>
+
+          {selectedImage && (
+            <div
+              onClick={() => setSelectedImage(null)}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="relative max-h-full max-w-full overflow-hidden rounded-3xl bg-white p-4"
+              >
+                <button
+                  type="button"
+                  onClick={() => setSelectedImage(null)}
+                  className="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-gray-700 shadow-sm"
+                >
+                  Close
+                </button>
+                <img
+                  src={selectedImage}
+                  alt="Staff profile"
+                  className="max-h-[85vh] max-w-[85vw] object-contain"
+                />
+              </div>
+            </div>
+          )}
 
         </section>
 
