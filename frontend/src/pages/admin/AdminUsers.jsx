@@ -209,12 +209,21 @@ export default function AdminUsers() {
                             </div>
                           </div>
 
-                          <div className="mt-4">
+                          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
                             <button
-                              onClick={() => blockMutation.mutate(user._id)}
-                              className="w-full rounded-xl border border-red-500 py-2 text-red-500 font-medium active:scale-95"
+                              type="button"
+                              onClick={() => setSelectedImage(userImage)}
+                              className="rounded-xl border border-slate-300 bg-slate-50 py-2 text-slate-700 font-medium transition hover:bg-slate-100 active:scale-95"
                             >
-                              🚫 Block User
+                              👁️ View Profile
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => blockMutation.mutate(user._id)}
+                              className="rounded-xl border border-red-500 bg-white py-2 text-red-500 font-medium transition hover:bg-red-50 active:scale-95"
+                            >
+                              🚫 Block
                             </button>
                           </div>
                         </motion.div>
@@ -285,12 +294,21 @@ export default function AdminUsers() {
                             </div>
                           </div>
 
-                          <div className="mt-4">
+                          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
                             <button
-                              onClick={() => unblockMutation.mutate(user._id)}
-                              className="w-full rounded-xl border border-green-600 py-2 text-green-600 font-medium active:scale-95"
+                              type="button"
+                              onClick={() => setSelectedImage(userImage)}
+                              className="rounded-xl border border-slate-300 bg-slate-50 py-2 text-slate-700 font-medium transition hover:bg-slate-100 active:scale-95"
                             >
-                              ✅ Unblock User
+                              👁️ View Profile
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => unblockMutation.mutate(user._id)}
+                              className="rounded-xl border border-green-600 bg-white py-2 text-green-600 font-medium transition hover:bg-emerald-50 active:scale-95"
+                            >
+                              ✅ Unblock
                             </button>
                           </div>
                         </motion.div>
@@ -312,7 +330,7 @@ export default function AdminUsers() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-[calc(100vh-3rem)] w-full max-w-[95vw] items-center justify-center overflow-hidden rounded-3xl bg-white p-4 shadow-2xl"
+            className="relative flex max-h-[calc(100vh-2rem)] w-full max-w-[calc(100vw-2rem)] items-center justify-center overflow-hidden rounded-3xl bg-white p-4 shadow-2xl"
           >
             <button
               type="button"
@@ -325,7 +343,7 @@ export default function AdminUsers() {
             <img
               src={selectedImage}
               alt="User profile enlarged"
-              className="max-h-[85vh] max-w-[90vw] w-full rounded-3xl object-contain"
+              className="max-h-[85vh] max-w-[90vw] w-full rounded-3xl object-contain shadow-lg"
             />
           </div>
         </div>
