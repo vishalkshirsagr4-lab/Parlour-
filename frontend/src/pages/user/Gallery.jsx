@@ -111,68 +111,76 @@ export default function Gallery() {
 
         {/* Gallery Grid - Pinterest Masonry */}
         <section className="px-2 sm:px-4 mt-6 sm:mt-10">
-          {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl bg-gray-200 animate-pulse h-64 sm:h-80"
-                />
-              ))}
-            </div>
-          ) : galleryItems.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 auto-rows-max">
-              {galleryItems.map((item, idx) => (
-                <motion.div
-                  key={item?._id || idx}
-                  variants={itemVariants}
-                  whileHover={{ y: -3 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setSelectedImage(item)}
-                  className="group relative overflow-hidden rounded-2xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 bg-white"
-                >
-                  <div className="relative overflow-hidden bg-gray-200 ">
-                    <img
-                      src={imageError[item?._id] ? '/placeholder.jpg' : (item?.image || item?.imageUrl)}
-                      alt={item?.title || 'Gallery'}
-                      loading="lazy"
-                      className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-110"
-                      onError={() => {
-                        setImageError(prev => ({ ...prev, [item?._id]: true }))
-                      }}
-                    />
+        {isLoading ? (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square rounded-2xl bg-gray-200 animate-pulse"
+              />
+            ))}
+          </div>
+        ) : galleryItems.length > 0 ? (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
+            {galleryItems.map((item, idx) => (
+              <motion.div
+                key={item?._id || idx}
+                variants={itemVariants}
+                whileHover={{ y: -3 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setSelectedImage(item)}
+                className="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 bg-white"
+              >
+                {/* Image container */}
+                <div className="w-full h-full relative">
+                  <img
+                    src={
+                      imageError[item?._id]
+                        ? '/placeholder.jpg'
+                        : item?.image || item?.imageUrl
+                    }
+                    alt={item?.title || 'Gallery'}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    onError={() => {
+                      setImageError((prev) => ({
+                        ...prev,
+                        [item?._id]: true,
+                      }))
+                    }}
+                  />
 
-                    {/* Overlay on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-start p-3 sm:p-4">
-                      <div className="w-full">
-                        <div className="inline-flex items-center rounded-full bg-white/30 backdrop-blur-sm px-2 py-1 text-xs text-white mb-2">
-                          {item?.category?.replace(/_/g, ' ') || 'Beauty'}
-                        </div>
-                        <h3 className="text-sm sm:text-base font-bold text-white line-clamp-2">
-                          {item?.title || 'Beauty Look'}
-                        </h3>
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3 sm:p-4">
+                    <div className="w-full">
+                      <div className="inline-flex items-center rounded-full bg-white/30 backdrop-blur-sm px-2 py-1 text-xs text-white mb-2">
+                        {item?.category?.replace(/_/g, ' ') || 'Beauty'}
                       </div>
-                    </div>
-
-                    {/* Tap indicator for mobile */}
-                    <div className="absolute top-2 right-2 sm:hidden bg-black/60 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center text-white text-sm">
-                      👁️
+                      <h3 className="text-sm sm:text-base font-bold text-white line-clamp-2">
+                        {item?.title || 'Beauty Look'}
+                      </h3>
                     </div>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-24 px-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                📷 No Images Yet
-              </h2>
-              <p className="text-gray-500 mt-2 text-sm sm:text-base">
-                Gallery coming soon!
-              </p>
-            </div>
-          )}
-        </section>
+
+                  {/* Mobile indicator */}
+                  <div className="absolute top-2 right-2 sm:hidden bg-black/60 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center text-white text-sm">
+                    👁️
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-24 px-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              📷 No Images Yet
+            </h2>
+            <p className="text-gray-500 mt-2 text-sm sm:text-base">
+              Gallery coming soon!
+            </p>
+          </div>
+        )}
+</section>
       </motion.div>
 
       {/* Full Screen Image Modal */}
