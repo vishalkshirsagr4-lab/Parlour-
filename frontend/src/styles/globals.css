@@ -41,4 +41,33 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Protection visuals when tab is hidden */
+  .protection-hidden .protected-blur {
+    filter: blur(8px) !important;
+    opacity: 0.25 !important;
+    transition: filter 200ms ease, opacity 200ms ease;
+  }
+
+  /* Watermark default styling */
+  .protection-watermark {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+
+  .protection-watermark span {
+    color: rgba(255,255,255,0.12);
+    font-weight: 700;
+    font-size: 2.75rem;
+    transform: rotate(-20deg);
+    text-transform: uppercase;
+    letter-spacing: 0.5rem;
+  }
 }

@@ -20,6 +20,7 @@ export default function AdminStaff() {
   const [form, setForm] = useState(initialForm)
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
+  const [editingId, setEditingId] = useState(null)
 
   const {
     data: staff = [],
@@ -76,9 +77,30 @@ export default function AdminStaff() {
     },
   })
 
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, payload }) => {
+      return await staffAPI.updateStaff(id, payload)
+    },
+
+    onSuccess: () => {
+      toast.success('✅ Stylist updated successfully!')
+
+      queryClient.invalidateQueries({
+        queryKey: ['admin-staff'],
+      })
+
+      resetForm()
+    },
+
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || 'Could not update stylist')
+    },
+  })
+
   const resetForm = () => {
     setForm(initialForm)
     setImageFile(null)
+    setEditingId(null)
 
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview)
@@ -152,7 +174,34 @@ export default function AdminStaff() {
       payload.append('image', imageFile)
     }
 
-    createMutation.mutate(payload)
+    if (editingId) {
+      updateMutation.mutate({ id: editingId, payload })
+    } else {
+      createMutation.mutate(payload)
+    }
+  }
+
+  const handleEdit = (member) => {
+    setEditingId(member._id)
+
+    setForm({
+      name: member.name || '',
+      email: member.email || '',
+      phone: member.phone || '',
+      specialization: Array.isArray(member.specialization)
+        ? member.specialization.join(', ')
+        : member.specialization || '',
+      experience: member.experience || '',
+      bio: member.bio || '',
+    })
+
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview)
+    }
+
+    setImageFile(null)
+    setImagePreview(member.image || null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
@@ -169,7 +218,7 @@ export default function AdminStaff() {
           className="card-glass rounded-3xl p-6"
         >
           <h2 className="mb-6 text-2xl font-bold">
-            👥 Add New Stylist
+            {editingId ? '✏️ Edit Stylist' : '👥 Add New Stylist'}
           </h2>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -303,15 +352,29 @@ export default function AdminStaff() {
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={createMutation.isPending}
-            className="btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {createMutation.isPending
-              ? 'Adding Stylist...'
-              : '➕ Add Stylist'}
-          </button>
+          <div className="mt-6 flex gap-3">
+            <button
+              type="submit"
+              disabled={createMutation.isPending || updateMutation.isPending}
+              className="btn-primary flex-1 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {updateMutation.isPending
+                ? 'Saving Changes...'
+                : editingId
+                ? '💾 Save Changes'
+                : '➕ Add Stylist'}
+            </button>
+
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="btn-ghost rounded-3xl px-6"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </motion.form>
 
         {/* STAFF LIST */}
@@ -392,15 +455,24 @@ export default function AdminStaff() {
                     </p>
                   )}
 
-                  <button
-                    onClick={() =>
-                      deleteMutation.mutate(member._id)
-                    }
-                    disabled={deleteMutation.isPending}
-                    className="mt-4 w-full rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 "
-                  >
-                    🗑️ Remove
-                  </button>
+                  <div className="mt-4 grid gap-3">
+                    <button
+                      onClick={() => handleEdit(member)}
+                      className="w-full rounded-full border border-rose-300 px-4 py-2 text-rose-600 transition hover:bg-rose-50 "
+                    >
+                      ✏️ Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        deleteMutation.mutate(member._id)
+                      }
+                      disabled={deleteMutation.isPending}
+                      className="w-full rounded-full border border-red-300 px-4 py-2 text-red-600 transition hover:bg-red-50 "
+                    >
+                      🗑️ Remove
+                    </button>
+                  </div>
                 </motion.div>
               ))
             ) : (

@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 export default function AdminUsers() {
   const queryClient = useQueryClient()
   const [selectedImage, setSelectedImage] = useState(null)
+  const [query, setQuery] = useState('')
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['admin-users'],
@@ -46,6 +47,18 @@ export default function AdminUsers() {
 
   const blockedCount = users.filter((u) => u.isBlocked).length
   const activeCount = users.filter((u) => !u.isBlocked).length
+
+  const normalizedQuery = query.trim().toLowerCase()
+  const filtered = normalizedQuery
+    ? users.filter((u) => {
+        const name = (u.name || '').toLowerCase()
+        const email = (u.email || '').toLowerCase()
+        return name.includes(normalizedQuery) || email.includes(normalizedQuery)
+      })
+    : users
+
+  const activeUsers = filtered.filter((u) => !u.isBlocked)
+  const blockedUsers = filtered.filter((u) => u.isBlocked)
 
   return (
     <motion.div
@@ -80,10 +93,27 @@ export default function AdminUsers() {
       </div>
 
       {/* TITLE */}
-      <h2 className="text-xl font-bold">👥 Users</h2>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <h2 className="text-xl font-bold">👥 Users</h2>
+
+        <div className="sm:ml-auto flex w-full max-w-md items-center gap-2">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name or email..."
+            className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-2 text-sm outline-none"
+          />
+
+          <div className="text-sm text-gray-500">
+            <span className="font-semibold">{activeUsers.length}</span>
+            <span className="mx-1">/</span>
+            <span className="text-red-600">{blockedUsers.length}</span>
+          </div>
+        </div>
+      </div>
 
       {/* USERS */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div
@@ -91,102 +121,154 @@ export default function AdminUsers() {
               className="h-24 animate-pulse rounded-2xl bg-gray-200"
             />
           ))
-        ) : users.length > 0 ? (
-          users.map((user) => {
-            const userImage =
-              user.profileImage ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                user.name || 'User'
-              )}&background=F3F4F6&color=7C3AED&size=128`
-
-            return (
-              <motion.div
-                key={user._id}
-                variants={itemVariants}
-                className={`rounded-2xl border bg-white p-4 shadow-sm ${
-                  user.isBlocked ? 'opacity-70' : ''
-                }`}
-              >
-                {/* TOP SECTION (mobile stacked) */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-
-                  {/* Avatar */}
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => setSelectedImage(userImage)}
-                      className="relative h-14 w-14 overflow-hidden rounded-full border"
-                    >
-                      <img
-                        src={userImage}
-                        alt={user.name}
-                        className="h-full w-full object-cover"
-                        onError={(e) =>
-                          (e.currentTarget.src =
-                            'https://ui-avatars.com/api/?name=User')
-                        }
-                      />
-                    </button>
-
-                    {/* NAME + STATUS */}
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold">
-                        {user.name || 'Unnamed User'}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${
-                            user.isBlocked
-                              ? 'bg-red-100 text-red-600'
-                              : 'bg-green-100 text-green-600'
-                          }`}
-                        >
-                          {user.isBlocked ? 'Blocked' : 'Active'}
-                        </span>
-
-                        <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">
-                          {user.role || 'user'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* INFO */}
-                  <div className="text-xs text-gray-500 sm:ml-auto">
-                    <p className="truncate">📧 {user.email}</p>
-                    {user.phone && <p>📱 {user.phone}</p>}
-                  </div>
-                </div>
-
-                {/* ACTION BUTTONS (mobile full width) */}
-                <div className="mt-4">
-                  {user.isBlocked ? (
-                    <button
-                      onClick={() =>
-                        unblockMutation.mutate(user._id)
-                      }
-                      className="w-full rounded-xl border border-green-600 py-2 text-green-600 font-medium active:scale-95"
-                    >
-                      ✅ Unblock User
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() =>
-                        blockMutation.mutate(user._id)
-                      }
-                      className="w-full rounded-xl border border-red-500 py-2 text-red-500 font-medium active:scale-95"
-                    >
-                      🚫 Block User
-                    </button>
-                  )}
-                </div>
-              </motion.div>
-            )
-          })
         ) : (
-          <div className="rounded-2xl border border-dashed p-8 text-center text-gray-500">
-            No users found
-          </div>
+          <>
+            {/* Active users section */}
+            <div>
+              <h3 className="mb-3 text-lg font-semibold">Active Users ({activeUsers.length})</h3>
+
+              <div className="space-y-4">
+                {activeUsers.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed p-6 text-center text-gray-500">
+                    No active users
+                  </div>
+                ) : (
+                  activeUsers.map((user) => {
+                    const userImage =
+                      user.profileImage ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        user.name || 'User'
+                      )}&background=F3F4F6&color=7C3AED&size=128`
+
+                    return (
+                      <motion.div
+                        key={user._id}
+                        variants={itemVariants}
+                        className={`rounded-2xl border bg-white p-4 shadow-sm`}
+                      >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => setSelectedImage(userImage)}
+                              className="relative h-14 w-14 overflow-hidden rounded-full border"
+                            >
+                              <img
+                                src={userImage}
+                                alt={user.name}
+                                className="h-full w-full object-cover"
+                                onError={(e) =>
+                                  (e.currentTarget.src =
+                                    'https://ui-avatars.com/api/?name=User')
+                                }
+                              />
+                            </button>
+
+                            <div className="min-w-0">
+                              <p className="truncate font-semibold">
+                                {user.name || 'Unnamed User'}
+                              </p>
+
+                              <div className="flex flex-wrap gap-2 mt-1">
+                                <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-600">Active</span>
+                                <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">{user.role || 'user'}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-gray-500 sm:ml-auto">
+                            <p className="truncate">📧 {user.email}</p>
+                            {user.phone && <p>📱 {user.phone}</p>}
+                          </div>
+                        </div>
+
+                        <div className="mt-4">
+                          <button
+                            onClick={() => blockMutation.mutate(user._id)}
+                            className="w-full rounded-xl border border-red-500 py-2 text-red-500 font-medium active:scale-95"
+                          >
+                            🚫 Block User
+                          </button>
+                        </div>
+                      </motion.div>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Blocked users section */}
+            <div>
+              <h3 className="mb-3 text-lg font-semibold">Blocked Users ({blockedUsers.length})</h3>
+
+              <div className="space-y-4">
+                {blockedUsers.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed p-6 text-center text-gray-500">
+                    No blocked users
+                  </div>
+                ) : (
+                  blockedUsers.map((user) => {
+                    const userImage =
+                      user.profileImage ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        user.name || 'User'
+                      )}&background=F3F4F6&color=7C3AED&size=128`
+
+                    return (
+                      <motion.div
+                        key={user._id}
+                        variants={itemVariants}
+                        className={`rounded-2xl border bg-white p-4 shadow-sm opacity-70`}
+                      >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => setSelectedImage(userImage)}
+                              className="relative h-14 w-14 overflow-hidden rounded-full border"
+                            >
+                              <img
+                                src={userImage}
+                                alt={user.name}
+                                className="h-full w-full object-cover"
+                                onError={(e) =>
+                                  (e.currentTarget.src =
+                                    'https://ui-avatars.com/api/?name=User')
+                                }
+                              />
+                            </button>
+
+                            <div className="min-w-0">
+                              <p className="truncate font-semibold">
+                                {user.name || 'Unnamed User'}
+                              </p>
+
+                              <div className="flex flex-wrap gap-2 mt-1">
+                                <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-600">Blocked</span>
+                                <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">{user.role || 'user'}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-gray-500 sm:ml-auto">
+                            <p className="truncate">📧 {user.email}</p>
+                            {user.phone && <p>📱 {user.phone}</p>}
+                          </div>
+                        </div>
+
+                        <div className="mt-4">
+                          <button
+                            onClick={() => unblockMutation.mutate(user._id)}
+                            className="w-full rounded-xl border border-green-600 py-2 text-green-600 font-medium active:scale-95"
+                          >
+                            ✅ Unblock User
+                          </button>
+                        </div>
+                      </motion.div>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+          </>
         )}
       </div>
 

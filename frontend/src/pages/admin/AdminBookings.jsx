@@ -169,6 +169,14 @@ export default function AdminBookings() {
                   </button>
                 ))}
             </div>
+
+            {/* NOTES (from booking) */}
+            <div className="mt-4 rounded-2xl border border-gray-100 p-4 bg-white">
+              <h3 className="text-sm font-semibold text-gray-800">Notes</h3>
+              <p className="mt-2 text-sm text-gray-700">
+                {booking?.notes || 'No additional notes.'}
+              </p>
+            </div>
           </motion.div>
         ))
       ) : (

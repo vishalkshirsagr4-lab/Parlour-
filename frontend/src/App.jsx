@@ -2,6 +2,7 @@ import { useEffect, lazy, Suspense } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import useProtection from './hooks/useProtection'
 
 // Store
 import { useAuthStore } from './store/authStore'
@@ -64,6 +65,9 @@ export default function App() {
 
   return () => clearTimeout(timer)
 }, [setLoading])
+
+  // Enable global lightweight protections (best-effort, client-side)
+  useProtection({ enabled: true })
 
   // Splash screen while loading
   if (isLoading) {

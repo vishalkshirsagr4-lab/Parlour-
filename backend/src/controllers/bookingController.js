@@ -54,7 +54,9 @@ export const getBookingById = async (req, res) => {
     const { id } = req.params;
 
     const booking = await Booking.findById(id)
-      .populate('service staff user');
+      .populate('service')
+      .populate({ path: 'staff' })
+      .populate({ path: 'user', select: 'name email bio' });
 
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
@@ -141,8 +143,10 @@ export const getAllBookings = async (req, res) => {
     }
 
     const bookings = await Booking.find(query)
-      .populate('service user staff')
-      .sort('-date');
+      .sort('-date')
+      .populate('service')
+      .populate({ path: 'staff' })
+      .populate({ path: 'user', select: 'name email bio' });
 
     res.status(200).json(bookings);
   } catch (error) {

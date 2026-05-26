@@ -434,10 +434,18 @@ export default function Home() {
                 className="bg-white border border-gray-200 shadow-md rounded-3xl p-6 hover:shadow-2xl transition text-center"
               >
 
-                <div className="text-5xl mb-4">
-                  {typeof cat?.icon === 'string'
-                    ? cat.icon
-                    : '✨'}
+                <div className="mb-4 flex items-center justify-center">
+                  {cat?.image ? (
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="h-16 w-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
+                      {typeof cat?.icon === 'string' ? cat.icon : (cat?.name?.[0] || '✨')}
+                    </div>
+                  )}
                 </div>
 
                 <div className="font-bold text-gray-900 text-lg">
