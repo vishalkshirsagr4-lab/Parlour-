@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
 import { notificationAPI } from '../../api/endpoints'
-import { getSocket, initSocket, socketEvents } from '../../utils/socketManager'
+import { getSocket, socketEvents } from '../../utils/socketManager'
 
 export function useNotifications({ limit = 20, pollingMs = 30000 } = {}) {
   const queryClient = useQueryClient()
@@ -42,7 +42,7 @@ export function useNotifications({ limit = 20, pollingMs = 30000 } = {}) {
 
       // toast support for new notifications
       if (!notification?.isRead) {
-        toast((t) => (
+        toast(() => (
           <span>
             <span className="font-bold">{notification?.title || 'New update'}</span>
             <span className="block text-xs opacity-70">{notification?.message || ''}</span>

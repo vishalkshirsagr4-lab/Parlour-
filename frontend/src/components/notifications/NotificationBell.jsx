@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FiBell } from 'react-icons/fi'
 import { motion } from 'framer-motion'
+import toast from 'react-hot-toast'
 
 import { useAuthStore } from '../../store/authStore'
 import { useNotifications } from '../../hooks/notifications/useNotifications'
@@ -14,7 +15,7 @@ import {
 } from '@tanstack/react-query'
 
 export default function NotificationBell() {
-  const { user, token } = useAuthStore()
+  const { token } = useAuthStore()
   const queryClient = useQueryClient()
 
   const [open, setOpen] = useState(false)
@@ -35,6 +36,11 @@ export default function NotificationBell() {
     [notifications]
   )
 
+  const notificationLabel = useMemo(
+    () => (unreadCount > 0 ? `${unreadCount} new` : 'No new notifications'),
+    [unreadCount]
+  )
+
   const markReadMutation = useMutation({
     mutationFn: (id) => notificationAPI.markAsRead(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
@@ -42,7 +48,10 @@ export default function NotificationBell() {
 
   const markAllMutation = useMutation({
     mutationFn: () => notificationAPI.markAllAsRead(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      toast.success('All notifications marked as read')
+    },
   })
 
   const deleteMutation = useMutation({
@@ -84,6 +93,10 @@ export default function NotificationBell() {
           </span>
         ) : null}
       </motion.button>
+
+      <div className="mt-1 text-center text-[11px] text-white/80">
+        {notificationLabel}
+      </div>
 
       <NotificationDropdownPanel
         open={open}

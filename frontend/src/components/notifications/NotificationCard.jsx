@@ -1,7 +1,5 @@
 import { motion } from 'framer-motion'
 
-import StarRating from '../reviews/StarRating'
-
 export default function NotificationCard({ notification, onMarkRead, onDelete, disabled }) {
   const type = notification?.type || 'Notification'
   const title = notification?.title || 'New Update'

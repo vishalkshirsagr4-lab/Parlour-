@@ -42,11 +42,6 @@ export default function AdminNotifications() {
     return arr
   }, [data])
 
-  const selectedUser = useMemo(
-    () => users.find((user) => user._id === selectedUserId) || null,
-    [users, selectedUserId]
-  )
-
   const userDropdownRef = useRef(null)
 
   useEffect(() => {
@@ -89,7 +84,7 @@ export default function AdminNotifications() {
 
   const createNotification = useMutation({
     mutationFn: (payload) => notificationAPI.createNotification(payload),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Notification sent to user')
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       const record = {
