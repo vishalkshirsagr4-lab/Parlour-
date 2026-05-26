@@ -42,12 +42,10 @@ export function useNotifications({ limit = 20, pollingMs = 30000 } = {}) {
 
       // toast support for new notifications
       if (!notification?.isRead) {
-        toast(() => (
-          <span>
-            <span className="font-bold">{notification?.title || 'New update'}</span>
-            <span className="block text-xs opacity-70">{notification?.message || ''}</span>
-          </span>
-        ), { id: `notif-${notification?._id}`, duration: 3500 })
+        toast(
+          `${notification?.title || 'New update'}${notification?.message ? ` — ${notification?.message}` : ''}`,
+          { id: `notif-${notification?._id}`, duration: 3500 }
+        )
       }
     }
 
