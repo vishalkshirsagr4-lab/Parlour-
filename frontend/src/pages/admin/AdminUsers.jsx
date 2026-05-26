@@ -175,8 +175,10 @@ export default function AdminUsers() {
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                             <div className="flex items-center gap-3">
                               <button
+                                type="button"
                                 onClick={() => setSelectedImage(userImage)}
-                                className="relative h-14 w-14 overflow-hidden rounded-full border"
+                                className="relative h-14 w-14 overflow-hidden rounded-full border transition hover:scale-105 hover:border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-300"
+                                aria-label="View user profile image"
                               >
                                 <img
                                   src={userImage}
@@ -249,8 +251,10 @@ export default function AdminUsers() {
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                             <div className="flex items-center gap-3">
                               <button
+                                type="button"
                                 onClick={() => setSelectedImage(userImage)}
-                                className="relative h-14 w-14 overflow-hidden rounded-full border"
+                                className="relative h-14 w-14 overflow-hidden rounded-full border transition hover:scale-105 hover:border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-300"
+                                aria-label="View user profile image"
                               >
                                 <img
                                   src={userImage}
@@ -304,22 +308,24 @@ export default function AdminUsers() {
       {selectedImage && (
         <div
           onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-[90vw] rounded-2xl bg-white p-3"
+            className="relative flex max-h-[calc(100vh-3rem)] w-full max-w-[95vw] items-center justify-center overflow-hidden rounded-3xl bg-white p-4 shadow-2xl"
           >
             <button
+              type="button"
               onClick={() => setSelectedImage(null)}
-              className="absolute right-2 top-2 rounded-full bg-white px-3 py-1 text-xs shadow"
+              className="absolute right-3 top-3 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow ring-1 ring-slate-200 transition hover:bg-slate-100"
             >
               Close
             </button>
 
             <img
               src={selectedImage}
-              className="max-h-[80vh] w-auto object-contain rounded-xl"
+              alt="User profile enlarged"
+              className="max-h-[85vh] max-w-[90vw] w-full rounded-3xl object-contain"
             />
           </div>
         </div>

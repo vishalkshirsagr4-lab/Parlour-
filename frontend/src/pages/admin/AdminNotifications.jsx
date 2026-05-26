@@ -18,7 +18,7 @@ export default function AdminNotifications() {
 
   const [broadcastTitle, setBroadcastTitle] = useState('')
   const [broadcastMessage, setBroadcastMessage] = useState('')
-  const [broadcastType, setBroadcastType] = useState('promo')
+  const [broadcastType, setBroadcastType] = useState('promotion')
 
   const [lastAction, setLastAction] = useState('')
   const [lastResult, setLastResult] = useState(null)
@@ -367,8 +367,8 @@ export default function AdminNotifications() {
                 className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
               >
                 <option value="booking">Booking</option>
-                <option value="promo">Promo</option>
-                <option value="system">System</option>
+                <option value="promotion">Promo</option>
+                <option value="announcement">System</option>
               </select>
             </div>
 
@@ -424,8 +424,8 @@ export default function AdminNotifications() {
                 onChange={(e) => setBroadcastType(e.target.value)}
                 className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
               >
-                <option value="promo">Promo</option>
-                <option value="system">System</option>
+                <option value="promotion">Promo</option>
+                <option value="announcement">System</option>
                 <option value="booking">Booking</option>
               </select>
             </div>

@@ -120,9 +120,9 @@ export const sendBroadcastNotification = async (req, res) => {
   try {
     const { title, message, type } = req.body;
 
-    const users = await require('../models/User.js').find({});
+    const users = await User.find({});
 
-    const notifications = users.map(user => ({
+    const notifications = users.map((user) => ({
       user: user._id,
       title,
       message,
