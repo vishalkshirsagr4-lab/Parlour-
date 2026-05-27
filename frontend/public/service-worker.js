@@ -65,6 +65,8 @@ self.addEventListener('fetch', (event) => {
  * This event is triggered when a push notification is sent from the server
  */
 self.addEventListener('push', (event) => {
+  console.log('[SW] Push event received')
+  
   let notificationData = {
     title: 'Parlour Notification',
     body: 'You have a new notification',
@@ -77,19 +79,22 @@ self.addEventListener('push', (event) => {
   try {
     if (event.data) {
       const data = event.data.json()
+      console.log('[SW] Push data parsed:', data)
       notificationData = {
         ...notificationData,
         ...data,
       }
+    } else {
+      console.warn('[SW] Push event has no data')
     }
   } catch (error) {
-    console.error('Error parsing push data:', error)
+    console.error('[SW] Error parsing push data:', error)
     if (event.data) {
       notificationData.body = event.data.text()
     }
   }
 
-  console.log('Push notification received:', notificationData)
+  console.log('[SW] Showing notification:', notificationData.title)
 
   event.waitUntil(
     self.registration.showNotification(notificationData.title, {
@@ -101,6 +106,10 @@ self.addEventListener('push', (event) => {
       actions: notificationData.actions || [],
       requireInteraction: notificationData.requireInteraction || false,
       vibrate: [200, 100, 200],
+    }).then(() => {
+      console.log('[SW] Notification shown successfully')
+    }).catch((err) => {
+      console.error('[SW] Failed to show notification:', err)
     })
   )
 })

@@ -26,7 +26,10 @@ export const subscribeToPushNotifications = async (req, res) => {
     const userId = req.user.id;
     const { endpoint, auth, p256dh } = req.body;
 
+    console.debug(`[Push] Subscribe request for user: ${userId}`);
+
     if (!endpoint || !auth || !p256dh) {
+      console.warn(`[Push] Missing fields for user ${userId}`);
       return res.status(400).json({
         message: 'Missing required subscription fields: endpoint, auth, p256dh',
       });
@@ -36,6 +39,7 @@ export const subscribeToPushNotifications = async (req, res) => {
     let subscription = await PushSubscription.findOne({ user: userId });
 
     if (subscription) {
+      console.debug(`[Push] Updating existing subscription for user: ${userId}`);
       // Update existing subscription
       subscription.endpoint = endpoint;
       subscription.auth = auth;
@@ -43,24 +47,28 @@ export const subscribeToPushNotifications = async (req, res) => {
       subscription.isActive = true;
       subscription.userAgent = req.headers['user-agent'];
     } else {
-      // Create new subscription
+      console.debug(`[Push] Creating new subscription for user: ${userId}`);
+      // Create new subscription - isActive defaults to true in schema
       subscription = new PushSubscription({
         user: userId,
         endpoint,
         auth,
         p256dh,
+        isActive: true,
         userAgent: req.headers['user-agent'],
       });
     }
 
     await subscription.save();
+    console.log(`✓ [Push] Subscription saved for user: ${userId}, isActive: ${subscription.isActive}`);
 
     res.status(201).json({
       message: 'Push subscription saved successfully',
       subscriptionId: subscription._id,
+      isActive: subscription.isActive,
     });
   } catch (error) {
-    console.error('Error saving push subscription:', error);
+    console.error(`[Push] Error saving subscription for user:`, error.message);
     res.status(500).json({ message: error.message });
   }
 };

@@ -71,29 +71,47 @@ export const subscribeToPushNotifications = async () => {
     }
 
     // Get VAPID public key
+    console.debug('Fetching VAPID public key...');
     const vapidPublicKey = await getVapidPublicKey();
+    console.debug('✓ VAPID public key fetched');
 
     // Register and wait for the service worker to be ready
+    console.debug('Ensuring service worker is ready...');
     const registration = await ensureServiceWorkerReady();
+    console.debug('✓ Service worker is ready');
 
     // Subscribe to push
+    console.debug('Subscribing to push manager...');
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
     });
+    console.debug('✓ Successfully subscribed to push manager');
 
     // Send subscription to server
+    console.debug('Sending subscription to server...');
     const subscriptionData = subscription.toJSON();
-    await apiClient.post('/push/subscribe', {
-      endpoint: subscription.endpoint,
-      auth: subscriptionData.keys.auth,
-      p256dh: subscriptionData.keys.p256dh,
-    });
+    
+    try {
+      await apiClient.post('/push/subscribe', {
+        endpoint: subscription.endpoint,
+        auth: subscriptionData.keys.auth,
+        p256dh: subscriptionData.keys.p256dh,
+      });
+      console.debug('✓ Subscription saved on server');
+    } catch (apiError) {
+      console.error('Server subscription error:', apiError.response?.data || apiError.message);
+      throw apiError;
+    }
 
     console.log('✓ Successfully subscribed to push notifications');
     return true;
   } catch (error) {
-    console.error('Failed to subscribe to push notifications:', error);
+    console.error('Failed to subscribe to push notifications:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
     return false;
   }
 };
@@ -104,22 +122,39 @@ export const subscribeToPushNotifications = async () => {
 export const unsubscribeFromPushNotifications = async () => {
   try {
     if (!('serviceWorker' in navigator)) {
+      console.warn('Service Workers not available for unsubscribe');
       return false;
     }
 
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
+    // Add timeout to prevent service worker message channel issues
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Service Worker unsubscribe timeout')), 5000)
+    );
 
-    if (subscription) {
-      await subscription.unsubscribe();
-      await apiClient.post('/push/unsubscribe');
-      console.log('✓ Unsubscribed from push notifications');
-      return true;
-    }
+    const unsubscribePromise = (async () => {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
 
-    return false;
+      if (subscription) {
+        await subscription.unsubscribe();
+        console.debug('Push subscription unsubscribed from browser');
+        
+        try {
+          await apiClient.post('/push/unsubscribe');
+        } catch (apiError) {
+          console.warn('Failed to notify server of unsubscribe:', apiError.message);
+        }
+        
+        console.log('✓ Unsubscribed from push notifications');
+        return true;
+      }
+
+      return false;
+    })();
+
+    return await Promise.race([unsubscribePromise, timeoutPromise]);
   } catch (error) {
-    console.error('Failed to unsubscribe from push notifications:', error);
+    console.error('Failed to unsubscribe from push notifications:', error.message);
     return false;
   }
 };
@@ -130,15 +165,28 @@ export const unsubscribeFromPushNotifications = async () => {
 export const isPushNotificationSubscribed = async () => {
   try {
     if (!('serviceWorker' in navigator)) {
+      console.debug('Service Workers not available');
       return false;
     }
 
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
+    // Add timeout to prevent service worker message channel issues
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Service Worker check timeout')), 5000)
+    );
 
-    return !!subscription;
+    const checkPromise = (async () => {
+      const registration = await navigator.serviceWorker.ready;
+      if (!registration) {
+        console.warn('Service worker registration not ready');
+        return false;
+      }
+      const subscription = await registration.pushManager.getSubscription();
+      return !!subscription;
+    })();
+
+    return await Promise.race([checkPromise, timeoutPromise]);
   } catch (error) {
-    console.error('Error checking push subscription:', error);
+    console.error('Error checking push subscription:', error.message);
     return false;
   }
 };

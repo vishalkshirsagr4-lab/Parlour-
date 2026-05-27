@@ -23,12 +23,23 @@ if (!vapidPublicKey || !vapidPrivateKey) {
  */
 export const sendPushNotificationToUser = async (userId, notificationData) => {
   try {
+    console.debug(`[Push] Looking for active subscription for user: ${userId}`);
+    
     const subscription = await PushSubscription.findOne({ user: userId, isActive: true });
 
     if (!subscription) {
-      console.warn(`No active push subscription found for user: ${userId}`);
+      console.warn(`[Push] ⚠️  No active push subscription found for user: ${userId}`);
+      
+      // Check if subscription exists but is inactive
+      const inactiveSubscription = await PushSubscription.findOne({ user: userId });
+      if (inactiveSubscription) {
+        console.warn(`[Push] → Subscription exists but marked isActive: ${inactiveSubscription.isActive}`);
+      }
+      
       return;
     }
+
+    console.debug(`[Push] Found subscription for user: ${userId}`);
 
     const payload = JSON.stringify({
       title: notificationData.title,
@@ -54,17 +65,17 @@ export const sendPushNotificationToUser = async (userId, notificationData) => {
     subscription.lastUsed = new Date();
     await subscription.save();
 
-    console.log(`✓ Push notification sent to user: ${userId}`);
+    console.log(`✓ [Push] Notification sent to user: ${userId}`);
   } catch (error) {
     if (error.statusCode === 410) {
       // Subscription endpoint is no longer valid
+      console.warn(`[Push] Subscription expired for user: ${userId}, marking as inactive`);
       await PushSubscription.findOneAndUpdate(
         { user: userId },
         { isActive: false }
       );
-      console.log(`Subscription expired for user: ${userId}`);
     } else {
-      console.error('Error sending push notification:', error.message);
+      console.error(`[Push] Error sending notification to user ${userId}:`, error.message);
     }
   }
 };

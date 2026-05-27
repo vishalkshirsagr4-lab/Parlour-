@@ -82,22 +82,58 @@ export const getPushSubscriptionStats = async (req, res) => {
     const total = await PushSubscription.countDocuments();
     const active = await PushSubscription.countDocuments({ isActive: true });
     const inactive = await PushSubscription.countDocuments({ isActive: false });
+    const noActiveField = await PushSubscription.countDocuments({ isActive: { $exists: false } });
 
     const recentlyUsed = await PushSubscription.countDocuments({
       lastUsed: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
     });
+
+    console.log('[Push] Stats - Total:', total, 'Active:', active, 'Inactive:', inactive, 'Missing isActive:', noActiveField);
 
     res.status(200).json({
       stats: {
         total,
         active,
         inactive,
+        missingActiveField: noActiveField,
         recentlyUsed,
         inactivePercentage: ((inactive / total) * 100).toFixed(2) + '%',
       },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Admin endpoint to fix subscriptions missing isActive field
+ * Sets all subscriptions without isActive to true
+ */
+export const fixSubscriptionsActiveStatus = async (req, res) => {
+  try {
+    const PushSubscription = (
+      await import('../models/PushSubscription.js')
+    ).default;
+
+    console.log('[Push] Running subscription fix...');
+
+    // Fix subscriptions that don't have isActive field
+    const updateResult = await PushSubscription.updateMany(
+      { isActive: { $exists: false } },
+      { $set: { isActive: true } }
+    );
+
+    console.log(`[Push] Fixed ${updateResult.modifiedCount} subscriptions`);
+
+    res.status(200).json({
+      message: 'Subscription fix completed',
+      updated: updateResult.modifiedCount,
+    });
+  } catch (error) {
+    console.error('[Push] Error fixing subscriptions:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
   }
 };
 

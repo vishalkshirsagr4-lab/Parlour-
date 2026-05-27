@@ -44,25 +44,32 @@ export const usePushNotifications = () => {
   const requestNotifications = useCallback(async () => {
     setStatus((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
+      console.debug('Starting notification request flow...');
       const success = await initPushNotifications();
+      
       if (success) {
+        console.debug('Permission granted, checking status...');
         const pushStatus = await getPushNotificationStatus();
+        console.debug('Push status retrieved:', pushStatus);
+        
         setStatus((prev) => ({
           ...prev,
           ...pushStatus,
           isLoading: false,
         }));
       } else {
+        console.warn('initPushNotifications returned false');
         setStatus((prev) => ({
           ...prev,
           isLoading: false,
-          error: 'Failed to enable notifications',
+          error: 'Failed to enable notifications. Check browser permissions and try again.',
         }));
       }
     } catch (error) {
+      console.error('Exception during notification request:', error);
       setStatus((prev) => ({
         ...prev,
-        error: error.message,
+        error: error.message || 'An error occurred while enabling notifications',
         isLoading: false,
       }));
     }
