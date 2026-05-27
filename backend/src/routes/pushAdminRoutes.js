@@ -1,0 +1,18 @@
+import express from 'express';
+import {
+  sendTestNotification,
+  sendPromotionalNotification,
+  getPushSubscriptionStats,
+  viewPushNotificationLogs,
+} from '../controllers/pushAdminController.js';
+import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+
+const router = express.Router();
+
+// Admin-only routes for managing push notifications
+router.post('/test', authMiddleware, adminMiddleware, sendTestNotification);
+router.post('/promotional', authMiddleware, adminMiddleware, sendPromotionalNotification);
+router.get('/stats', authMiddleware, adminMiddleware, getPushSubscriptionStats);
+router.get('/logs', authMiddleware, adminMiddleware, viewPushNotificationLogs);
+
+export default router;

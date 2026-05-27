@@ -15,6 +15,7 @@ import UserLayout from './layouts/UserLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoadingPage from './components/LoadingPage'
 import { AppInstallWrapper, SocialShareWrapper } from './components/LazyLoaders'
+import NotificationPermissionBanner from './components/notifications/NotificationPermission'
 
 // Pages
 import SplashScreen from './pages/SplashScreen'
@@ -90,6 +91,9 @@ export default function App() {
 
         {/* Social Share System */}
         <SocialShareWrapper />
+
+        {/* Push Notifications Permission Banner */}
+        <NotificationPermissionBanner />
 
         <Suspense fallback={<LoadingPage />}>
           <Routes>

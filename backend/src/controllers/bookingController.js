@@ -1,6 +1,7 @@
 import Booking from '../models/Booking.js';
 import Service from '../models/Service.js';
 import { sendBookingConfirmation } from '../config/email.js';
+import { sendBookingNotification } from '../config/pushNotifications.js';
 
 export const createBooking = async (req, res) => {
   try {
@@ -26,6 +27,18 @@ export const createBooking = async (req, res) => {
 
     await booking.save();
     await booking.populate('service user');
+
+    // Send push notification asynchronously
+    try {
+      await sendBookingNotification(userId, {
+        bookingId: booking._id.toString(),
+        serviceName: service.title,
+        date: booking.date.toLocaleDateString(),
+      }, 'created');
+    } catch (notificationError) {
+      console.error('Failed to send booking notification:', notificationError.message);
+      // Don't fail the request if notification fails
+    }
 
     res.status(201).json({
       message: 'Booking created successfully',
@@ -94,6 +107,27 @@ export const updateBookingStatus = async (req, res) => {
         time: booking.timeSlot,
         status,
       });
+    }
+
+    // Send push notification asynchronously
+    try {
+      const notificationMap = {
+        confirmed: 'confirmed',
+        completed: 'completed',
+        cancelled: 'cancelled',
+      };
+
+      const notificationType = notificationMap[status];
+      if (notificationType) {
+        await sendBookingNotification(booking.user._id.toString(), {
+          bookingId: booking._id.toString(),
+          serviceName: booking.service.title,
+          date: booking.date.toLocaleDateString(),
+        }, notificationType);
+      }
+    } catch (notificationError) {
+      console.error('Failed to send status notification:', notificationError.message);
+      // Don't fail the request if notification fails
     }
 
     res.status(200).json({
