@@ -32,6 +32,28 @@ const urlBase64ToUint8Array = (base64String) => {
 };
 
 /**
+ * Ensure the service worker is registered and ready before subscribing.
+ */
+const ensureServiceWorkerReady = async () => {
+  if (!('serviceWorker' in navigator)) {
+    throw new Error('Service Workers not supported by this browser');
+  }
+
+  try {
+    await navigator.serviceWorker.register('/service-worker.js');
+  } catch (registrationError) {
+    console.warn('Service Worker registration attempt failed:', registrationError);
+  }
+
+  const registration = await navigator.serviceWorker.ready;
+  if (!registration) {
+    throw new Error('Service Worker ready state could not be reached');
+  }
+
+  return registration;
+};
+
+/**
  * Subscribe to push notifications
  * Returns true if successful, false otherwise
  */
@@ -51,8 +73,8 @@ export const subscribeToPushNotifications = async () => {
     // Get VAPID public key
     const vapidPublicKey = await getVapidPublicKey();
 
-    // Register service worker
-    const registration = await navigator.serviceWorker.ready;
+    // Register and wait for the service worker to be ready
+    const registration = await ensureServiceWorkerReady();
 
     // Subscribe to push
     const subscription = await registration.pushManager.subscribe({

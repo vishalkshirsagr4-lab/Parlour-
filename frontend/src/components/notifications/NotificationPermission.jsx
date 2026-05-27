@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
  * Shows a banner asking user to enable notifications
  */
 export const NotificationPermissionBanner = () => {
-  const { permission, enabled, isLoading, requestNotifications } = usePushNotifications();
+  const { permission, enabled, isLoading, error, requestNotifications } = usePushNotifications();
   const [dismissed, setDismissed] = useState(false);
 
   // Don't show if already granted or denied
@@ -30,6 +30,11 @@ export const NotificationPermissionBanner = () => {
       <div>
         <p className="font-semibold text-sm">Enable Notifications?</p>
         <p className="text-xs opacity-90 mt-1">Get updates about your bookings and special offers</p>
+        {error ? (
+          <p className="text-xs text-amber-100 opacity-90 mt-1">
+            {error}
+          </p>
+        ) : null}
       </div>
       <div className="flex gap-2 flex-shrink-0">
         <button

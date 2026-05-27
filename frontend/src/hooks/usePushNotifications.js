@@ -11,7 +11,7 @@ import {
  */
 export const usePushNotifications = () => {
   const [status, setStatus] = useState({
-    permission: 'denied',
+    permission: 'default',
     isSubscribed: false,
     enabled: false,
     isLoading: true,
