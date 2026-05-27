@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import usePushNotifications from '../hooks/usePushNotifications';
+import usePushNotifications from '../../hooks/notifications/useNotifications';
 import toast from 'react-hot-toast';
 
 /**
