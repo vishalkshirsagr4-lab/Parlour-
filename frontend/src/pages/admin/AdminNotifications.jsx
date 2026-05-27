@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
+import apiClient from '../../api/apiClient'
+import { getPushNotificationStatus, initPushNotifications } from '../../utils/pushNotifications'
 import { notificationAPI, userAPI } from '../../api/endpoints'
 import { containerVariants, itemVariants } from '../../animations/variants'
 import { useAuthStore } from '../../store/authStore'
@@ -12,36 +14,72 @@ function PushNotificationTester() {
   const [testTitle, setTestTitle] = useState('Test Notification')
   const [testBody, setTestBody] = useState('This is a test push notification from your salon app')
   const [isSending, setIsSending] = useState(false)
+  const [isPushEnabled, setIsPushEnabled] = useState(false)
   const [response, setResponse] = useState(null)
-  const { user, token } = useAuthStore()
+
+  const getPersistedAuthState = () => {
+    try {
+      const raw = localStorage.getItem('auth-store')
+      if (!raw) return {}
+      const parsed = JSON.parse(raw)
+      return parsed?.state || parsed || {}
+    } catch (err) {
+      console.error('Failed to parse auth-store from localStorage', err)
+      return {}
+    }
+  }
+
+  const refreshPushStatus = async () => {
+    try {
+      const status = await getPushNotificationStatus()
+      setIsPushEnabled(status.enabled)
+    } catch (err) {
+      console.error('Failed to refresh push status', err)
+      setIsPushEnabled(false)
+    }
+  }
+
+  const enablePushNotifications = async () => {
+    setIsSending(true)
+    try {
+      const success = await initPushNotifications()
+      if (!success) {
+        throw new Error('Push notification subscription failed or permission denied.')
+      }
+      toast.success('Push notifications enabled successfully.')
+      await refreshPushStatus()
+    } catch (error) {
+      toast.error(error.message || 'Could not enable push notifications')
+      console.error('Error enabling push notifications:', error)
+    } finally {
+      setIsSending(false)
+    }
+  }
 
   const sendTestNotification = async () => {
     setIsSending(true)
     try {
-      if (!user?._id || !token) {
-        throw new Error('User not authenticated')
+      const authState = useAuthStore.getState()
+      const persistedState = getPersistedAuthState()
+      const user = authState.user || persistedState.user
+      const userId = user?._id || user?.id
+
+      if (!userId) {
+        throw new Error('User is not authenticated')
       }
 
-      const response = await fetch('/api/push/admin/test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId: user._id,
-          title: testTitle,
-          body: testBody,
-        }),
+      const pushStatus = await getPushNotificationStatus()
+      if (!pushStatus.enabled) {
+        throw new Error('Enable push notifications in your browser before testing.')
+      }
+
+      const response = await apiClient.post('/push/admin/test', {
+        userId,
+        title: testTitle,
+        body: testBody,
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to send test notification')
-      }
-
-      const data = await response.json()
-      setResponse(data)
+      setResponse(response.data)
       toast.success('Test notification sent! Check your device.')
     } catch (error) {
       toast.error(error.message || 'Failed to send test notification')
@@ -51,12 +89,31 @@ function PushNotificationTester() {
     }
   }
 
+  useEffect(() => {
+    refreshPushStatus()
+  }, [])
+
   return (
     <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm">
       <h3 className="text-xl font-bold">🧪 Push Notification Tester</h3>
       <p className="mt-2 text-sm text-gray-600">Test push notifications on your device to verify they're working correctly.</p>
 
       <div className="mt-4 space-y-4">
+        <div className="rounded-3xl border border-gray-200 bg-gray-50 p-4">
+          <p className="text-sm font-semibold text-black">Push status</p>
+          <p className="mt-1 text-sm text-gray-600">{isPushEnabled ? 'Enabled' : 'Disabled'}</p>
+          {!isPushEnabled && (
+            <button
+              type="button"
+              onClick={enablePushNotifications}
+              disabled={isSending}
+              className="mt-3 inline-flex items-center justify-center rounded-3xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSending ? 'Working...' : 'Enable Push Notifications'}
+            </button>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-black">Title</label>
           <input
@@ -81,7 +138,7 @@ function PushNotificationTester() {
         <button
           type="button"
           onClick={sendTestNotification}
-          disabled={isSending}
+          disabled={isSending || !isPushEnabled}
           className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSending ? 'Sending...' : '📤 Send Test Notification'}

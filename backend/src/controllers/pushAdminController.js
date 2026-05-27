@@ -10,7 +10,8 @@ import {
  */
 export const sendTestNotification = async (req, res) => {
   try {
-    const { userId, title, body, icon, data } = req.body;
+    const { userId: requestedUserId, title, body, icon, data } = req.body;
+    const userId = requestedUserId || req.user?.id;
 
     if (!userId) {
       return res.status(400).json({
