@@ -134,9 +134,6 @@ export const fixSubscriptionsActiveStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-  }
-};
-
 /**
  * Admin endpoint to view recent push notifications
  * (This would require a separate NotificationLog model)
