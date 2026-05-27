@@ -1,10 +1,102 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
 import { notificationAPI, userAPI } from '../../api/endpoints'
 import { containerVariants, itemVariants } from '../../animations/variants'
+import { useAuthStore } from '../../store/authStore'
+
+// PushNotificationTester Component
+function PushNotificationTester() {
+  const [testTitle, setTestTitle] = useState('Test Notification')
+  const [testBody, setTestBody] = useState('This is a test push notification from your salon app')
+  const [isSending, setIsSending] = useState(false)
+  const [response, setResponse] = useState(null)
+  const { user, token } = useAuthStore()
+
+  const sendTestNotification = async () => {
+    setIsSending(true)
+    try {
+      if (!user?._id || !token) {
+        throw new Error('User not authenticated')
+      }
+
+      const response = await fetch('/api/push/admin/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user._id,
+          title: testTitle,
+          body: testBody,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to send test notification')
+      }
+
+      const data = await response.json()
+      setResponse(data)
+      toast.success('Test notification sent! Check your device.')
+    } catch (error) {
+      toast.error(error.message || 'Failed to send test notification')
+      console.error('Error:', error)
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  return (
+    <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm">
+      <h3 className="text-xl font-bold">🧪 Push Notification Tester</h3>
+      <p className="mt-2 text-sm text-gray-600">Test push notifications on your device to verify they're working correctly.</p>
+
+      <div className="mt-4 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-black">Title</label>
+          <input
+            value={testTitle}
+            onChange={(e) => setTestTitle(e.target.value)}
+            placeholder="Notification title"
+            className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-black">Message</label>
+          <textarea
+            value={testBody}
+            onChange={(e) => setTestBody(e.target.value)}
+            rows={3}
+            placeholder="Notification message"
+            className="mt-2 w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={sendTestNotification}
+          disabled={isSending}
+          className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isSending ? 'Sending...' : '📤 Send Test Notification'}
+        </button>
+
+        {response && (
+          <div className="rounded-3xl border border-green-200 bg-green-50 p-4">
+            <p className="text-sm font-semibold text-green-700">✅ Sent successfully!</p>
+            <p className="mt-1 text-xs text-green-600">Check your device for the notification.</p>
+          </div>
+        )}
+      </div>
+    </motion.section>
+  )
+}
 
 export default function AdminNotifications() {
   const queryClient = useQueryClient()
@@ -23,6 +115,7 @@ export default function AdminNotifications() {
   const [lastAction, setLastAction] = useState('')
   const [lastResult, setLastResult] = useState(null)
   const [history, setHistory] = useState([])
+  const [showTester, setShowTester] = useState(false)
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users'],
@@ -85,7 +178,7 @@ export default function AdminNotifications() {
   const createNotification = useMutation({
     mutationFn: (payload) => notificationAPI.createNotification(payload),
     onSuccess: () => {
-      toast.success('Notification sent to user')
+      toast.success('Notification sent to user! Check their phone.')
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       const record = {
         id: Date.now(),
@@ -100,6 +193,8 @@ export default function AdminNotifications() {
       setTitle('')
       setMessage('')
       setType('booking')
+      setSelectedUserId('')
+      setUserQuery('')
       setLastAction('single')
       setLastResult({
         targetUserId: selectedUserId,
@@ -109,6 +204,7 @@ export default function AdminNotifications() {
       })
     },
     onError: (error) => {
+      console.error('Error:', error)
       toast.error(error?.response?.data?.message || error?.message || 'Failed to send notification')
     },
   })
@@ -116,7 +212,7 @@ export default function AdminNotifications() {
   const sendBroadcast = useMutation({
     mutationFn: (payload) => notificationAPI.sendBroadcast(payload),
     onSuccess: (data) => {
-      toast.success('Broadcast notification sent')
+      toast.success(`Broadcast sent to ${data?.count || 'all'} users! Push notifications being sent...`)
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       const record = {
         id: Date.now(),
@@ -131,7 +227,7 @@ export default function AdminNotifications() {
       setHistory((prev) => [record, ...prev].slice(0, 5))
       setBroadcastTitle('')
       setBroadcastMessage('')
-      setBroadcastType('promo')
+      setBroadcastType('promotion')
       setLastAction('broadcast')
       setLastResult({
         count: record.count,
@@ -141,6 +237,7 @@ export default function AdminNotifications() {
       })
     },
     onError: (error) => {
+      console.error('Error:', error)
       toast.error(error?.response?.data?.message || error?.message || 'Failed to send broadcast')
     },
   })
@@ -192,61 +289,69 @@ export default function AdminNotifications() {
       animate="animate"
       className="space-y-6"
     >
-      <div className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm ">
+      <div className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-rose-500">Admin Notifications</p>
-            <h1 className="mt-3 text-3xl font-black text-black ">Send updates to users</h1>
-            <p className="mt-2 max-w-2xl text-sm text-gray-600 ">
-              Send a targeted notification to a single user or broadcast an announcement to everyone.
+            <h1 className="mt-3 text-3xl font-black text-black">Send updates to users</h1>
+            <p className="mt-2 max-w-2xl text-sm text-gray-600">
+              Send targeted or broadcast notifications. All notifications include phone push notifications to subscribed users.
             </p>
           </div>
-          <div className="rounded-3xl bg-rose-500/10 px-4 py-3 text-sm text-rose-700 ">
-            Tip: use broadcast for promotions, and single notifications for booking updates.
-          </div>
+          <button
+            onClick={() => setShowTester(!showTester)}
+            className="rounded-3xl bg-blue-500/10 px-4 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-500/20"
+          >
+            {showTester ? '✕ Hide Tester' : '🧪 Show Tester'}
+          </button>
         </div>
       </div>
 
+      <AnimatePresence>
+        {showTester && <PushNotificationTester />}
+      </AnimatePresence>
+
       <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm ">
+        <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm">
           <h2 className="text-xl font-bold">Notification Summary</h2>
-          <p className="mt-2 text-sm text-gray-600 ">
+          <p className="mt-2 text-sm text-gray-600">
             Quick overview of what was sent last and how many users are currently visible.
           </p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-4 ">
+            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-4">
               <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Users loaded</p>
-              <p className="mt-3 text-3xl font-black text-black ">{users.length}</p>
+              <p className="mt-3 text-3xl font-black text-black">{users.length}</p>
             </div>
 
-            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-4 ">
+            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-4">
               <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Last action</p>
-              <p className="mt-3 text-2xl font-bold text-black ">
+              <p className="mt-3 text-2xl font-bold text-black">
                 {lastAction === 'broadcast' ? 'Broadcast' : lastAction === 'single' ? 'Single' : 'None'}
               </p>
             </div>
           </div>
 
           {lastResult ? (
-            <div className="mt-5 rounded-3xl border border-gray-200 bg-white p-4 ">
+            <div className="mt-5 rounded-3xl border border-green-200 bg-green-50 p-4">
               {lastAction === 'broadcast' ? (
                 <>
-                  <p className="text-sm text-gray-500 ">Broadcasted to</p>
-                  <p className="mt-2 text-xl font-bold text-black ">{lastResult.count} users</p>
+                  <p className="text-sm font-semibold text-green-700">✅ Broadcast sent to</p>
+                  <p className="mt-2 text-xl font-bold text-green-900">{lastResult.count} users</p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm text-gray-500 ">Target user</p>
-                  <p className="mt-2 text-xl font-bold text-black ">
+                  <p className="text-sm font-semibold text-green-700">✅ Sent to</p>
+                  <p className="mt-2 text-xl font-bold text-green-900">
                     {users.find((user) => user._id === lastResult.targetUserId)?.name || lastResult.targetUserId}
                   </p>
                 </>
               )}
-              <div className="mt-4 space-y-2 text-sm text-gray-600 ">
+              <div className="mt-4 space-y-2 text-sm text-green-700">
                 <p><span className="font-semibold">Title:</span> {lastResult.title}</p>
                 <p><span className="font-semibold">Type:</span> {lastResult.type}</p>
                 <p><span className="font-semibold">Message:</span> {lastResult.message}</p>
+                <p className="text-xs text-green-600">Push notifications sent to user devices</p>
               </div>
             </div>
           ) : null}
@@ -254,12 +359,12 @@ export default function AdminNotifications() {
           <div className="mt-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Recent history</p>
-              <p className="mt-2 text-xs text-gray-500 ">Last 5 notifications sent</p>
+              <p className="mt-2 text-xs text-gray-500">Last 5 notifications sent</p>
             </div>
             <button
               type="button"
               onClick={clearHistory}
-              className="rounded-2xl border border-gray-300 bg-gray-100 px-4 py-2 text-xs font-semibold text-black transition hover:bg-gray-200 "
+              className="rounded-2xl border border-gray-300 bg-gray-100 px-4 py-2 text-xs font-semibold text-black transition hover:bg-gray-200"
             >
               Clear history
             </button>
@@ -268,39 +373,40 @@ export default function AdminNotifications() {
           {history.length > 0 ? (
             <div className="mt-4 space-y-3">
               {history.map((item) => (
-                <div key={item.id} className="rounded-3xl border border-gray-200 bg-gray-50 p-4 ">
+                <div key={item.id} className="rounded-3xl border border-gray-200 bg-gray-50 p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-black ">{item.mode}</p>
-                    <p className="text-xs text-gray-500 ">{new Date(item.timestamp).toLocaleTimeString()}</p>
+                    <p className="text-sm font-semibold text-black">{item.mode}</p>
+                    <p className="text-xs text-gray-500">{new Date(item.timestamp).toLocaleTimeString()}</p>
                   </div>
-                  <p className="mt-2 text-sm text-gray-600 ">{item.target}</p>
-                  <p className="mt-1 text-sm text-gray-600 "><span className="font-semibold">Title:</span> {item.title}</p>
-                  <p className="mt-1 text-sm text-gray-600 "><span className="font-semibold">Message:</span> {item.message}</p>
+                  <p className="mt-2 text-sm text-gray-600">{item.target}</p>
+                  <p className="mt-1 text-sm text-gray-600"><span className="font-semibold">Title:</span> {item.title}</p>
+                  <p className="mt-1 text-sm text-gray-600"><span className="font-semibold">Message:</span> {item.message}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="mt-4 rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500 ">
+            <div className="mt-4 rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
               No notification history yet. Send one to start tracking.
             </div>
           )}
         </motion.section>
-        <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm ">
+
+        <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold">Single Notification</h2>
-              <p className="mt-2 text-sm text-gray-600 ">
-                Choose a user and send a one-off notification.
+              <p className="mt-2 text-sm text-gray-600">
+                Choose a user and send a one-off notification with push.
               </p>
             </div>
-            <span className="rounded-2xl bg-gray-100 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-500 ">
+            <span className="rounded-2xl bg-gray-100 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-500">
               Targeted
             </span>
           </div>
 
           <form className="space-y-4" onSubmit={handleSendSingle}>
             <div ref={userDropdownRef} className="relative">
-              <label className="block text-sm font-medium text-black ">User</label>
+              <label className="block text-sm font-medium text-black">User</label>
               <input
                 value={userQuery}
                 onChange={(e) => {
@@ -331,10 +437,13 @@ export default function AdminNotifications() {
                 }}
                 placeholder="Search user by name or email"
                 disabled={isLoading}
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
+                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
               />
+              {selectedUserId && (
+                <p className="mt-2 text-xs font-semibold text-green-600">✓ User selected</p>
+              )}
               {userDropdownOpen && (
-                <div className="absolute inset-x-0 top-full z-20 mt-2 max-h-72 overflow-y-auto rounded-3xl border border-gray-200 bg-white shadow-xl ">
+                <div className="absolute inset-x-0 top-full z-20 mt-2 max-h-72 overflow-y-auto rounded-3xl border border-gray-200 bg-white shadow-xl">
                   {filteredUsers.length === 0 ? (
                     <div className="p-4 text-sm text-gray-500">No users match your search.</div>
                   ) : (
@@ -348,10 +457,10 @@ export default function AdminNotifications() {
                           setUserQuery(user.name || user.email || '')
                           setUserDropdownOpen(false)
                         }}
-                        className={`w-full px-4 py-3 text-left text-sm transition ${activeUserIndex === index ? 'bg-rose-pink/10 text-black ' : 'text-black hover:bg-gray-100 '}`}
+                        className={`w-full px-4 py-3 text-left text-sm transition ${activeUserIndex === index ? 'bg-rose-pink/10 text-black' : 'text-black hover:bg-gray-100'}`}
                       >
                         <div className="font-semibold">{user.name || user.email || `User ${user._id}`}</div>
-                        <div className="text-xs text-gray-500 ">{user.email}</div>
+                        <div className="text-xs text-gray-500">{user.email}</div>
                       </button>
                     ))
                   )}
@@ -360,11 +469,11 @@ export default function AdminNotifications() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black ">Type</label>
+              <label className="block text-sm font-medium text-black">Type</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
+                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
               >
                 <option value="booking">Booking</option>
                 <option value="promotion">Promo</option>
@@ -373,56 +482,56 @@ export default function AdminNotifications() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black ">Title</label>
+              <label className="block text-sm font-medium text-black">Title</label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Example: Booking confirmed"
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
+                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black ">Message</label>
+              <label className="block text-sm font-medium text-black">Message</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={5}
                 placeholder="Write the notification message"
-                className="mt-2 w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
+                className="mt-2 w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
               />
             </div>
 
             <button
               type="submit"
-              disabled={createNotification.isPending}
+              disabled={createNotification.isPending || !selectedUserId}
               className="inline-flex items-center justify-center rounded-3xl bg-black px-6 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {createNotification.isPending ? 'Sending...' : 'Send Notification'}
+              {createNotification.isPending ? 'Sending...' : '📤 Send Notification'}
             </button>
           </form>
         </motion.section>
 
-        <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm ">
+        <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold">Broadcast Notification</h2>
-              <p className="mt-2 text-sm text-gray-600 ">
-                Send the same notification to every user in the system.
+              <p className="mt-2 text-sm text-gray-600">
+                Send the same notification to every user with push notifications.
               </p>
             </div>
-            <span className="rounded-2xl bg-gray-100 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-500 ">
+            <span className="rounded-2xl bg-gray-100 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-500">
               Broadcast
             </span>
           </div>
 
           <form className="space-y-4" onSubmit={handleSendBroadcast}>
             <div>
-              <label className="block text-sm font-medium text-black ">Type</label>
+              <label className="block text-sm font-medium text-black">Type</label>
               <select
                 value={broadcastType}
                 onChange={(e) => setBroadcastType(e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
+                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
               >
                 <option value="promotion">Promo</option>
                 <option value="announcement">System</option>
@@ -431,23 +540,23 @@ export default function AdminNotifications() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black ">Title</label>
+              <label className="block text-sm font-medium text-black">Title</label>
               <input
                 value={broadcastTitle}
                 onChange={(e) => setBroadcastTitle(e.target.value)}
                 placeholder="Example: Weekend offer"
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
+                className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black ">Message</label>
+              <label className="block text-sm font-medium text-black">Message</label>
               <textarea
                 value={broadcastMessage}
                 onChange={(e) => setBroadcastMessage(e.target.value)}
                 rows={5}
                 placeholder="Write the broadcast message"
-                className="mt-2 w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 "
+                className="mt-2 w-full rounded-3xl border border-gray-200 bg-white px-4 py-3 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40"
               />
             </div>
 
@@ -456,15 +565,15 @@ export default function AdminNotifications() {
               disabled={sendBroadcast.isPending}
               className="inline-flex items-center justify-center rounded-3xl bg-black px-6 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {sendBroadcast.isPending ? 'Broadcasting...' : 'Send Broadcast'}
+              {sendBroadcast.isPending ? 'Broadcasting...' : '📢 Send Broadcast'}
             </button>
           </form>
         </motion.section>
       </div>
 
-      <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm ">
+      <motion.section variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/90 p-6 shadow-sm">
         <h2 className="text-2xl font-bold">Connected Users</h2>
-        <p className="mt-2 text-sm text-gray-600 ">
+        <p className="mt-2 text-sm text-gray-600">
           {isLoading
             ? 'Loading users...'
             : `Showing ${users.length} users. Use the dropdown above to target a specific user.`}
@@ -475,10 +584,10 @@ export default function AdminNotifications() {
             {users.slice(0, 12).map((user) => (
               <div
                 key={user._id}
-                className="rounded-3xl border border-gray-200 bg-gray-50 p-4 "
+                className="rounded-3xl border border-gray-200 bg-gray-50 p-4"
               >
-                <p className="font-semibold text-black ">{user.name || user.email}</p>
-                <p className="mt-1 text-sm text-gray-600 ">{user.email}</p>
+                <p className="font-semibold text-black">{user.name || user.email}</p>
+                <p className="mt-1 text-sm text-gray-600">{user.email}</p>
               </div>
             ))}
           </div>

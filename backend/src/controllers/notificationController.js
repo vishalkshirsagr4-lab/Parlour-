@@ -1,5 +1,6 @@
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
+import { sendPushNotificationToUser } from '../config/pushNotifications.js';
 
 export const createNotification = async (req, res) => {
   try {
@@ -23,6 +24,22 @@ export const createNotification = async (req, res) => {
       }
     } catch (emitErr) {
       console.error('Failed to emit notification via socket.io', emitErr)
+    }
+
+    // Send push notification asynchronously
+    try {
+      await sendPushNotificationToUser(userId, {
+        title: title || '📬 New Notification',
+        body: message,
+        icon: '/icons/icon-192.svg',
+        data: {
+          type: type || 'notification',
+          notificationId: notification._id.toString(),
+        },
+      });
+    } catch (pushError) {
+      console.error('Failed to send push notification:', pushError.message);
+      // Don't fail the request if push notification fails
     }
 
     res.status(201).json({
@@ -144,6 +161,28 @@ export const sendBroadcastNotification = async (req, res) => {
       }
     } catch (emitErr) {
       console.error('Failed to emit broadcast notifications via socket.io', emitErr)
+    }
+
+    // Send push notifications to all users asynchronously
+    try {
+      const pushNotificationPromises = users.map((user) =>
+        sendPushNotificationToUser(user._id.toString(), {
+          title: title || '📢 Broadcast Notification',
+          body: message,
+          icon: '/icons/icon-192.svg',
+          badge: '/icons/badge-72.svg',
+          data: {
+            type: type || 'broadcast',
+          },
+        }).catch((err) => {
+          console.error(`Failed to send push notification to user ${user._id}:`, err.message);
+          // Don't fail if individual notifications fail
+        })
+      );
+      await Promise.allSettled(pushNotificationPromises);
+    } catch (pushError) {
+      console.error('Error sending broadcast push notifications:', pushError.message);
+      // Don't fail the request if push notifications fail
     }
 
     res.status(201).json({

@@ -1,7 +1,8 @@
 import Booking from '../models/Booking.js';
 import Service from '../models/Service.js';
+import User from '../models/User.js';
 import { sendBookingConfirmation } from '../config/email.js';
-import { sendBookingNotification } from '../config/pushNotifications.js';
+import { sendBookingNotification, sendPushNotificationToUser } from '../config/pushNotifications.js';
 
 export const createBooking = async (req, res) => {
   try {
@@ -12,6 +13,8 @@ export const createBooking = async (req, res) => {
     if (!service) {
       return res.status(404).json({ message: 'Service not found' });
     }
+
+    const user = await User.findById(userId);
 
     const booking = new Booking({
       user: userId,
@@ -28,7 +31,7 @@ export const createBooking = async (req, res) => {
     await booking.save();
     await booking.populate('service user');
 
-    // Send push notification asynchronously
+    // Send push notification to user asynchronously
     try {
       await sendBookingNotification(userId, {
         bookingId: booking._id.toString(),
@@ -36,8 +39,31 @@ export const createBooking = async (req, res) => {
         date: booking.date.toLocaleDateString(),
       }, 'created');
     } catch (notificationError) {
-      console.error('Failed to send booking notification:', notificationError.message);
+      console.error('Failed to send booking notification to user:', notificationError.message);
       // Don't fail the request if notification fails
+    }
+
+    // Send push notification to admins about new booking
+    try {
+      const admins = await User.find({ role: { $in: ['admin', 'super_admin'] } });
+      
+      const adminNotificationPromises = admins.map((admin) =>
+        sendPushNotificationToUser(admin._id.toString(), {
+          title: '🆕 New Booking',
+          body: `${user.name} booked ${service.title} for ${booking.date.toLocaleDateString()}`,
+          icon: '/icons/icon-192.svg',
+          data: {
+            type: 'admin-new-booking',
+            bookingId: booking._id.toString(),
+            userId: userId,
+          },
+        }).catch((err) => {
+          console.error(`Failed to send admin notification to ${admin._id}:`, err.message);
+        })
+      );
+      await Promise.allSettled(adminNotificationPromises);
+    } catch (adminNotificationError) {
+      console.error('Failed to send admin notification:', adminNotificationError.message);
     }
 
     res.status(201).json({
@@ -109,12 +135,13 @@ export const updateBookingStatus = async (req, res) => {
       });
     }
 
-    // Send push notification asynchronously
+    // Send push notification to user asynchronously
     try {
       const notificationMap = {
         confirmed: 'confirmed',
         completed: 'completed',
         cancelled: 'cancelled',
+        pending: 'created',
       };
 
       const notificationType = notificationMap[status];
@@ -126,8 +153,38 @@ export const updateBookingStatus = async (req, res) => {
         }, notificationType);
       }
     } catch (notificationError) {
-      console.error('Failed to send status notification:', notificationError.message);
+      console.error('Failed to send status notification to user:', notificationError.message);
       // Don't fail the request if notification fails
+    }
+
+    // Send push notification to admins about status change
+    try {
+      const admins = await User.find({ role: { $in: ['admin', 'super_admin'] } });
+      
+      const statusMessages = {
+        pending: `Booking pending for ${booking.service.title}`,
+        confirmed: `Booking confirmed for ${booking.service.title}`,
+        completed: `Booking completed for ${booking.service.title}`,
+        cancelled: `Booking cancelled for ${booking.service.title}`,
+      };
+
+      const adminNotificationPromises = admins.map((admin) =>
+        sendPushNotificationToUser(admin._id.toString(), {
+          title: `📋 Booking Status: ${status.toUpperCase()}`,
+          body: `${booking.user.name} - ${statusMessages[status] || 'Status updated'}`,
+          icon: '/icons/icon-192.svg',
+          data: {
+            type: 'admin-booking-update',
+            bookingId: booking._id.toString(),
+            status: status,
+          },
+        }).catch((err) => {
+          console.error(`Failed to send admin status notification to ${admin._id}:`, err.message);
+        })
+      );
+      await Promise.allSettled(adminNotificationPromises);
+    } catch (adminNotificationError) {
+      console.error('Failed to send admin status notification:', adminNotificationError.message);
     }
 
     res.status(200).json({
