@@ -26,7 +26,7 @@ export const NotificationPermissionBanner = () => {
   };
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-lg shadow-lg p-4 flex items-center justify-between gap-4 z-50 md:max-w-md md:bottom-6 md:left-auto md:right-6">
+    <div className="fixed top-4 left-4 right-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-lg shadow-lg p-4 flex items-center justify-between gap-4 z-50 md:max-w-md md:top-6 md:left-auto md:right-6">
       <div>
         <p className="font-semibold text-sm">Enable Notifications?</p>
         <p className="text-xs opacity-90 mt-1">Get updates about your bookings and special offers</p>
