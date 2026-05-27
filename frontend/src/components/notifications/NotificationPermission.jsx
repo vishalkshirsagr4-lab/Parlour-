@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import usePushNotifications from '../../hooks/usePushNotifications';
+import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast';
 
 /**
@@ -8,14 +9,20 @@ import toast from 'react-hot-toast';
  */
 export const NotificationPermissionBanner = () => {
   const { permission, enabled, isLoading, error, requestNotifications } = usePushNotifications();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const [dismissed, setDismissed] = useState(false);
 
-  // Don't show if already granted or denied
-  if (dismissed || permission === 'granted' || permission === 'denied' || isLoading) {
+  // Only show for authenticated users and when permission not already decided
+  if (!isAuthenticated || dismissed || permission === 'granted' || permission === 'denied' || isLoading) {
     return null;
   }
 
   const handleEnable = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to enable background notifications.')
+      return
+    }
+
     const success = await requestNotifications();
     if (success) {
       toast.success('Notifications enabled! You\'ll receive appointment updates.');

@@ -34,6 +34,7 @@ import pushAdminRoutes from './src/routes/pushAdminRoutes.js'
 
 import { createAdmin } from './scripts/createAdmin.js'
 // import { verifyEmailTransport } from './src/config/email.js'
+import PushSubscription from './src/models/PushSubscription.js'
 
 /* =========================================
    DNS FIX
@@ -170,6 +171,20 @@ const startServer = async () => {
     // Verify email transport early to surface env errors (may throw in production)
     // await verifyEmailTransport()
     await connectDB()
+
+    // Safe migration: mark existing subscriptions without `isActive` as active
+    try {
+      const result = await PushSubscription.updateMany(
+        { isActive: { $exists: false } },
+        { $set: { isActive: true } }
+      )
+      if (result.modifiedCount && result.modifiedCount > 0) {
+        console.log(`✓ Fixed ${result.modifiedCount} legacy push subscriptions (isActive set to true)`)
+      }
+    } catch (migrationErr) {
+      console.warn('Push subscription migration failed:', migrationErr.message)
+    }
+
     await createAdmin()
 
     httpServer.listen(PORT, () => {
