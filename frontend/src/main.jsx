@@ -14,3 +14,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 
 registerServiceWorker()
+console.log('[SW] registerServiceWorker() invoked from main')

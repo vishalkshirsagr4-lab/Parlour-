@@ -41,8 +41,17 @@ const ensureServiceWorkerReady = async () => {
 
   try {
     // Ensure the service worker is registered at root scope
-    await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
-    console.debug('[Push] Ensured service worker registration at root scope')
+    // Avoid re-registering if already controlled
+    if (!navigator.serviceWorker.controller) {
+      try {
+        await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+        console.debug('[Push] Registered service worker at root scope')
+      } catch (regErr) {
+        console.warn('[Push] service worker register attempt failed (continuing):', regErr)
+      }
+    } else {
+      console.debug('[Push] service worker already controlling page')
+    }
   } catch (registrationError) {
     console.warn('Service Worker registration attempt failed:', registrationError);
   }
@@ -50,6 +59,13 @@ const ensureServiceWorkerReady = async () => {
   const registration = await navigator.serviceWorker.ready;
   if (!registration) {
     throw new Error('Service Worker ready state could not be reached');
+  }
+
+  // If the service worker is not yet active, wait briefly for activation
+  if (!registration.active) {
+    console.warn('[Push] service worker registration found but no active worker yet; waiting')
+    const waitForActive = (ms = 3000) => new Promise((resolve) => setTimeout(resolve, ms))
+    await waitForActive(1000)
   }
 
   // Listen for subscription changes from the service worker and sync them to the server

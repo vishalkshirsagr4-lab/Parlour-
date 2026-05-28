@@ -69,53 +69,68 @@ self.addEventListener('fetch', (event) => {
  * This event is triggered when a push notification is sent from the server
  */
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push event received')
-  
-  let notificationData = {
-    title: 'Parlour Notification',
-    body: 'You have a new notification',
-    icon: '/icons/icon-192.svg',
-    badge: '/icons/badge-72.svg',
-    tag: 'default',
-    requireInteraction: false,
-  }
+  console.log('[SW] Push event received', !!event.data)
 
-  try {
-    if (event.data) {
-      const data = event.data.json()
-      console.log('[SW] Push data parsed:', data)
-      notificationData = {
-        ...notificationData,
-        ...data,
+  event.waitUntil((async () => {
+    try {
+      let payload = null
+
+      if (event.data) {
+        // Try to parse JSON, fallback to text
+        try {
+          payload = event.data.json()
+          console.log('[SW] push: parsed JSON payload', payload)
+        } catch (jsonErr) {
+          try {
+            const txt = await event.data.text()
+            try {
+              payload = JSON.parse(txt)
+              console.log('[SW] push: parsed JSON from text payload', payload)
+            } catch (e) {
+              // Not JSON, treat as body text
+              payload = { body: txt }
+              console.log('[SW] push: text payload used as body', txt)
+            }
+          } catch (textErr) {
+            console.warn('[SW] push: could not extract text payload', textErr)
+            payload = null
+          }
+        }
       }
-    } else {
-      console.warn('[SW] Push event has no data')
-    }
-  } catch (error) {
-    console.error('[SW] Error parsing push data:', error)
-    if (event.data) {
-      notificationData.body = event.data.text()
-    }
-  }
 
-  console.log('[SW] Showing notification:', notificationData.title)
+      const defaults = {
+        title: 'Parlour Notification',
+        body: 'You have a new notification',
+        icon: '/icons/icon-192.svg',
+        badge: '/icons/badge-72.svg',
+        tag: 'parlour-notification',
+        requireInteraction: false,
+        data: {},
+        actions: [],
+      }
 
-  event.waitUntil(
-    self.registration.showNotification(notificationData.title, {
-      body: notificationData.body,
-      icon: notificationData.icon,
-      badge: notificationData.badge,
-      tag: notificationData.tag,
-      data: notificationData.data || {},
-      actions: notificationData.actions || [],
-      requireInteraction: notificationData.requireInteraction || false,
-      vibrate: [200, 100, 200],
-    }).then(() => {
+      const data = payload && typeof payload === 'object' ? { ...defaults, ...payload } : defaults
+
+      const title = data.title || defaults.title
+      const options = {
+        body: data.body,
+        icon: data.icon,
+        badge: data.badge,
+        tag: data.tag,
+        data: data.data || {},
+        actions: data.actions || [],
+        requireInteraction: !!data.requireInteraction,
+        vibrate: data.vibrate || [200, 100, 200],
+      }
+
+      console.log('[SW] Showing notification (background):', title, options)
+
+      await self.registration.showNotification(title, options)
       console.log('[SW] Notification shown successfully')
-    }).catch((err) => {
-      console.error('[SW] Failed to show notification:', err)
-    })
-  )
+    } catch (err) {
+      console.error('[SW] Error handling push event:', err)
+    }
+  })())
 })
 
 /**
