@@ -273,3 +273,63 @@ return registration
   return false
   }
     }
+
+
+/**
+
+* Get notification status
+  */
+  export const getPushNotificationStatus =
+  async () => {
+  try {
+  const permission =
+  Notification.permission
+  
+  const isSubscribed =
+  await isPushNotificationSubscribed()
+  
+  return {
+  permission,
+  isSubscribed,
+  enabled:
+  permission === 'granted' &&
+  isSubscribed,
+  }
+  } catch (error) {
+  console.error(
+  '[Push] Status check failed:',
+  error
+  )
+  
+  return {
+  permission: 'default',
+  isSubscribed: false,
+  enabled: false,
+  }
+  }
+  }
+
+/**
+
+* Toggle notifications
+  */
+  export const togglePushNotifications =
+  async () => {
+  try {
+  const status =
+  await getPushNotificationStatus()
+  
+  if (status.enabled) {
+  return await unsubscribeFromPushNotifications()
+  }
+  
+  return await initPushNotifications()
+  } catch (error) {
+  console.error(
+  '[Push] Toggle failed:',
+  error
+  )
+  
+  return false
+  }
+  }
