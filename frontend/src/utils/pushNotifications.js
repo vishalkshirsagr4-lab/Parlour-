@@ -50,6 +50,42 @@ const ensureServiceWorkerReady = async () => {
     throw new Error('Service Worker ready state could not be reached');
   }
 
+  // Listen for subscription changes from the service worker and sync them to the server
+  try {
+    if (!window.__push_sub_listener_added) {
+      navigator.serviceWorker.addEventListener('message', async (event) => {
+        try {
+          const payload = event.data;
+          if (!payload || payload.type !== 'PUSH_SUB_CHANGED') return;
+
+          console.debug('[Push] Received PUSH_SUB_CHANGED from SW')
+          const subscription = payload.subscription;
+          if (!subscription) {
+            console.warn('[Push] SW reported null subscription')
+            return;
+          }
+
+          // Send the new subscription to the backend so it can be stored
+          try {
+            await apiClient.post('/push/subscribe', {
+              endpoint: subscription.endpoint,
+              auth: subscription.keys.auth,
+              p256dh: subscription.keys.p256dh,
+            });
+            console.debug('[Push] Synced new subscription to server from SW message')
+          } catch (err) {
+            console.warn('[Push] Failed to sync subscription from SW message:', err?.response?.data || err.message)
+          }
+        } catch (err) {
+          console.error('[Push] Error handling SW message:', err)
+        }
+      });
+      window.__push_sub_listener_added = true;
+    }
+  } catch (err) {
+    console.warn('Could not add service worker message listener:', err.message)
+  }
+
   return registration;
 };
 
@@ -79,6 +115,25 @@ export const subscribeToPushNotifications = async () => {
     console.debug('Ensuring service worker is ready...');
     const registration = await ensureServiceWorkerReady();
     console.debug('✓ Service worker is ready');
+
+    // If there is already an existing subscription, reuse it and ensure server has it
+    const existing = await registration.pushManager.getSubscription();
+    if (existing) {
+      console.debug('Found existing push subscription in browser')
+      const subJson = existing.toJSON()
+      try {
+        await apiClient.post('/push/subscribe', {
+          endpoint: subJson.endpoint,
+          auth: subJson.keys.auth,
+          p256dh: subJson.keys.p256dh,
+        })
+        console.debug('✓ Existing subscription synced to server')
+        return true
+      } catch (err) {
+        console.warn('Failed to sync existing subscription to server, attempting re-subscribe:', err?.response?.data || err.message)
+        // fallthrough to re-subscribe
+      }
+    }
 
     // Subscribe to push
     console.debug('Subscribing to push manager...');

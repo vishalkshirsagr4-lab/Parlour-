@@ -130,8 +130,16 @@ self.addEventListener('notificationclick', (event) => {
     clients.matchAll({ type: 'window' }).then((clientList) => {
       // Look for a window that matches the target URL
       for (const client of clientList) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus()
+        try {
+          // Compare origins + path to allow query string differences
+          const clientUrl = new URL(client.url);
+          const targetUrl = new URL(url, self.location.origin);
+          if (clientUrl.origin === targetUrl.origin && clientUrl.pathname === targetUrl.pathname && 'focus' in client) {
+            return client.focus()
+          }
+        } catch (e) {
+          // Fallback simple comparison
+          if (client.url === url && 'focus' in client) return client.focus()
         }
       }
       // If not found, open new window
@@ -149,5 +157,62 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('notificationclose', (event) => {
   console.log('Notification closed by user:', event.notification)
   // You can send analytics here if needed
+})
+
+/**
+ * Convert Base64 URL-safe string to Uint8Array
+ * This is needed for `pushsubscriptionchange` re-subscribe flow
+ */
+const urlBase64ToUint8Array = (base64String) => {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+};
+
+/**
+ * Handle subscription changes (some browsers rotate subscriptions)
+ * Attempt to re-subscribe and notify clients so the app can save
+ * the new subscription to the backend (client must be authenticated)
+ */
+self.addEventListener('pushsubscriptionchange', (event) => {
+  console.log('[SW] pushsubscriptionchange event')
+
+  event.waitUntil((async () => {
+    try {
+      // Try to get VAPID public key from server
+      const resp = await fetch('/api/push/public-key');
+      if (!resp || resp.status !== 200) {
+        console.warn('[SW] Could not fetch VAPID public key for resubscribe')
+        return
+      }
+      const body = await resp.json();
+      const publicKey = body.publicKey || body?.publicKey;
+      if (!publicKey) {
+        console.warn('[SW] No VAPID public key returned')
+        return
+      }
+
+      const applicationServerKey = urlBase64ToUint8Array(publicKey);
+      const newSub = await self.registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+      });
+
+      console.log('[SW] Resubscribed to push, notifying clients to sync to server')
+
+      // Notify all clients — the client should save the new subscription to the backend
+      const allClients = await clients.matchAll({ includeUncontrolled: true });
+      for (const client of allClients) {
+        client.postMessage({ type: 'PUSH_SUB_CHANGED', subscription: newSub ? newSub.toJSON() : null });
+      }
+    } catch (err) {
+      console.error('[SW] Error during pushsubscriptionchange:', err)
+    }
+  })())
 })
 
