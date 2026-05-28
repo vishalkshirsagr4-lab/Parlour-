@@ -40,7 +40,9 @@ const ensureServiceWorkerReady = async () => {
   }
 
   try {
-    await navigator.serviceWorker.register('/service-worker.js');
+    // Ensure the service worker is registered at root scope
+    await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+    console.debug('[Push] Ensured service worker registration at root scope')
   } catch (registrationError) {
     console.warn('Service Worker registration attempt failed:', registrationError);
   }

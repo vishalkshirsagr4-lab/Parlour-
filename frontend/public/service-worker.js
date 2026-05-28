@@ -7,7 +7,10 @@ const ASSETS = [
   '/icons/icon-512.svg',
 ]
 
+console.log('[SW] Service worker script loaded')
+
 self.addEventListener('install', (event) => {
+  console.log('[SW] install event')
   self.skipWaiting()
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
@@ -15,6 +18,7 @@ self.addEventListener('install', (event) => {
 })
 
 self.addEventListener('activate', (event) => {
+  console.log('[SW] activate event')
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
