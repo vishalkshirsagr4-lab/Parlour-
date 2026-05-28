@@ -11,27 +11,29 @@ console.log('[SW] Service worker script loaded')
 
 self.addEventListener('install', (event) => {
   console.log('[SW] install event')
-  self.skipWaiting()
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  )
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME)
+    await cache.addAll(ASSETS)
+    await self.skipWaiting()
+    console.log('[SW] install complete and skipWaiting called')
+  })())
 })
 
 self.addEventListener('activate', (event) => {
   console.log('[SW] activate event')
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key)
-          }
-          return null
-        })
-      )
+  event.waitUntil((async () => {
+    const keys = await caches.keys()
+    await Promise.all(
+      keys.map((key) => {
+        if (key !== CACHE_NAME) {
+          return caches.delete(key)
+        }
+        return null
+      })
     )
-  )
-  self.clients.claim()
+    await self.clients.claim()
+    console.log('[SW] activate complete and clients.claim called')
+  })())
 })
 
 self.addEventListener('fetch', (event) => {
@@ -129,6 +131,18 @@ self.addEventListener('push', (event) => {
       console.log('[SW] Notification shown successfully')
     } catch (err) {
       console.error('[SW] Error handling push event:', err)
+      try {
+        console.log('[SW] Showing emergency fallback notification')
+        await self.registration.showNotification('Parlour Notification', {
+          body: 'You have a new notification',
+          icon: '/icons/icon-192.svg',
+          badge: '/icons/badge-72.svg',
+          tag: 'parlour-notification-fallback',
+          data: {},
+        })
+      } catch (fallbackErr) {
+        console.error('[SW] Emergency fallback notification failed:', fallbackErr)
+      }
     }
   })())
 })

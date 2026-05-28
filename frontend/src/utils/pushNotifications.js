@@ -60,6 +60,11 @@ const ensureServiceWorkerReady = async () => {
   if (!registration) {
     throw new Error('Service Worker ready state could not be reached');
   }
+  console.debug('[Push] service worker ready, scope:', registration.scope, 'active:', !!registration.active)
+
+  if (registration.scope !== window.location.origin + '/') {
+    console.warn('[Push] Service worker ready scope mismatch:', registration.scope, 'expected', window.location.origin + '/')
+  }
 
   // If the service worker is not yet active, wait briefly for activation
   if (!registration.active) {
@@ -139,6 +144,8 @@ export const subscribeToPushNotifications = async () => {
     if (existing) {
       console.debug('Found existing push subscription in browser')
       const subJson = existing.toJSON()
+      console.debug('[Push] existing subscription endpoint host:', new URL(subJson.endpoint).host)
+      console.debug('[Push] existing subscription keys present:', !!subJson.keys?.auth, !!subJson.keys?.p256dh)
       try {
         await apiClient.post('/push/subscribe', {
           endpoint: subJson.endpoint,
@@ -159,7 +166,9 @@ export const subscribeToPushNotifications = async () => {
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
     });
-    console.debug('✓ Successfully subscribed to push manager');
+    console.debug('✓ Successfully subscribed to push manager')
+    console.debug('[Push] new subscription endpoint host:', new URL(subscription.endpoint).host)
+    console.debug('[Push] new subscription has auth/p256dh:', !!subscription.toJSON().keys?.auth, !!subscription.toJSON().keys?.p256dh)
 
     // Send subscription to server
     console.debug('Sending subscription to server...');
